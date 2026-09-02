@@ -1134,16 +1134,62 @@ body {
 }
 
 .sidebar-nav {
-  /* Compact icon grid (Discord/Slack-style): keeps all screens reachable
-     while taking minimal vertical space, so the recent-sessions list below
-     gets the remaining height. Labels are visually hidden — the button's
-     `title`/`aria-label` expose them on hover and to assistive tech.
-     Collapsed mode drops to a single column. */
+  /* Stack of labelled groups. Each group is itself the compact icon grid
+     (Discord/Slack-style): keeps all screens reachable while taking minimal
+     vertical space, so the recent-sessions list below gets the remaining
+     height. Labels are visually hidden — the button's `title`/`aria-label`
+     expose them on hover and to assistive tech. Collapsed mode drops each
+     group to a single column and swaps titles for hairline separators. */
   flex: 0 0 auto;
   padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-nav-group {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 4px;
+}
+
+/* Group heading spans the whole grid row above its icons. */
+.sidebar-nav-group-title {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary, var(--text-secondary));
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.sidebar-nav-group-title.is-toggle {
+  cursor: pointer;
+  border-radius: var(--radius-sm, 4px);
+}
+
+.sidebar-nav-group-title.is-toggle:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover, rgba(127, 127, 127, 0.1));
+}
+
+.sidebar-nav-group-chevron {
+  /* Points right when folded, down when open. */
+  transform: rotate(-90deg);
+  transition: transform 0.18s ease;
+}
+
+.sidebar-nav-group-title.is-open .sidebar-nav-group-chevron {
+  transform: rotate(0deg);
 }
 
 /* ── Sidebar recent sessions (Claude-desktop-style list at the bottom) ── */
@@ -4562,6 +4608,45 @@ body {
 }
 
 /* Grid */
+/* Settings "Advanced" disclosure — the operator sections fold behind this. */
+.settings-advanced-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+.settings-advanced-toggle:hover {
+  color: var(--text-primary);
+}
+
+.settings-advanced-toggle svg {
+  transform: rotate(-90deg);
+  transition: transform 0.18s ease;
+}
+
+.settings-advanced-toggle.is-open svg {
+  transform: rotate(0deg);
+}
+
+.skills-section-title {
+  margin: 4px 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
 .skills-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -5226,6 +5311,28 @@ body {
 
 .soul-editor::placeholder {
   color: var(--text-muted);
+}
+
+/* Persona preset row — sits between the header and the editor. */
+.soul-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 0 0 10px;
+}
+
+.soul-presets-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-right: 2px;
+}
+
+.soul-presets-hint {
+  flex-basis: 100%;
+  font-size: 11px;
+  color: var(--text-tertiary, var(--text-secondary));
 }
 
 .soul-hint {
@@ -6981,10 +7088,27 @@ body {
 }
 .sidebar.is-collapsed .sidebar-nav {
   padding: 0 6px;
-  /* Single column of icons in the 64px rail; no sessions list in collapsed
-     mode, so nav reclaims the space. */
-  grid-template-columns: 1fr;
   flex: 1;
+}
+/* Single column of icons in the 64px rail; no sessions list in collapsed
+   mode, so nav reclaims the space. Group titles have no room — a hairline
+   rule carries the same grouping instead. */
+.sidebar.is-collapsed .sidebar-nav-group {
+  grid-template-columns: 1fr;
+}
+.sidebar.is-collapsed .sidebar-nav-group-title-label,
+.sidebar.is-collapsed .sidebar-nav-group-chevron {
+  display: none;
+}
+.sidebar.is-collapsed .sidebar-nav-group-title {
+  padding: 0;
+  height: 1px;
+  min-height: 1px;
+  margin: 3px 6px;
+  background: var(--border, rgba(127, 127, 127, 0.25));
+}
+.sidebar.is-collapsed .sidebar-nav-group:first-child .sidebar-nav-group-title {
+  display: none;
 }
 .sidebar.is-collapsed .sidebar-nav-item {
   justify-content: center;
@@ -7042,6 +7166,21 @@ body {
   }
   .sidebar-nav {
     padding: 0 6px;
+  }
+  /* Narrow window mirrors the collapsed rail: group titles become hairlines. */
+  .sidebar-nav-group-title-label,
+  .sidebar-nav-group-chevron {
+    display: none;
+  }
+  .sidebar-nav-group-title {
+    padding: 0;
+    height: 1px;
+    min-height: 1px;
+    margin: 3px 6px;
+    background: var(--border, rgba(127, 127, 127, 0.25));
+  }
+  .sidebar-nav-group:first-child .sidebar-nav-group-title {
+    display: none;
   }
   .sidebar-nav-item {
     justify-content: center;

@@ -1,6 +1,6 @@
 export default {
-  title: "Schedules",
-  subtitle: "Automate tasks with scheduled agent runs",
+  title: "리마인더",
+  subtitle: "정기 팔로업과 파이프라인 점검을 정해진 주기로 자동 실행합니다",
   newTask: "New Task",
   name: "Name",
   frequency: "Frequency",

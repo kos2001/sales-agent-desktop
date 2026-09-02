@@ -1,7 +1,10 @@
 export default {
+  advancedSection: "Advanced",
+  advancedHint:
+    "Connection, network, server configuration and logs. Set up once — you should not need these day to day.",
   title: "Settings",
   sections: {
-    hermesAgent: "Hermes Agent",
+    hermesAgent: "Agent",
     appearance: "Appearance",
     privacy: "Privacy",
     credentialPool: "Credential Pool",
@@ -24,7 +27,7 @@ export default {
   },
   analytics: {
     label: "Send anonymous usage analytics",
-    hint: "Helps improve Hermes Desktop by sending anonymous, aggregated usage data to the project's PostHog instance. You can turn this off at any time.",
+    hint: "Helps improve Sales Agent by sending anonymous, aggregated usage data. Never includes customer data or message content. You can turn this off at any time.",
     disclosure: {
       uuid: "A random per-install identifier stored only on this device (no name, email, or account info).",
       platform: "Your operating system, Electron version, and Node.js version.",
@@ -38,7 +41,7 @@ export default {
   },
   notDetected: "Not detected",
   updatedSuccessfully: "Updated successfully!",
-  updateSuccess: "Hermes updated successfully.",
+  updateSuccess: "Updated successfully.",
   updateFailed: "Update failed.",
   version: "v{{version}}",
   proxyPlaceholder: "e.g. socks5://127.0.0.1:1080 or http://proxy:8080",
@@ -65,14 +68,14 @@ export default {
     "Couldn't reach the provider's model list — you can still type a model name",
   customBaseUrlHint: "OpenAI-compatible API endpoint",
   poolHint:
-    "Add multiple API Keys for the same provider for automatic rotation and load balancing. Hermes will cycle through them.",
+    "Add multiple API keys for the same provider for automatic rotation and load balancing. The app will cycle through them.",
   add: "Add",
   remove: "Remove",
   keyLabel: "Key",
   empty: "(empty)",
   dataSection: "Data",
   dataHint:
-    "Export or import your Hermes configuration, sessions, skills, and memory.",
+    "Export or import your configuration, accounts, playbooks, and memory.",
   backingUp: "Backing up...",
   exportBackup: "Export Backup",
   importing: "Importing...",

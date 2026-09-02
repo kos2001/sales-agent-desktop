@@ -14,46 +14,46 @@ export interface SectionDef {
 
 // ── Providers ───────────────────────────────────────────
 
+/**
+ * The single LLM provider this build is configured for.
+ *
+ * Swap this one object to point the product at an in-house gateway; the
+ * provider dropdown, the setup wizard and the API-key field all read from it,
+ * so nothing else needs editing. `configProvider` must name a provider that
+ * hermes-agent recognises (see hermes_cli/auth.py) — use "custom" with an
+ * explicit baseUrl for an internal OpenAI-compatible endpoint.
+ */
+export const ACTIVE_PROVIDER = {
+  id: "openrouter",
+  value: "openrouter",
+  name: "constants.openrouterName",
+  label: "constants.openrouterName",
+  desc: "constants.openrouterDesc",
+  tag: "constants.openrouterTag",
+  envKey: "OPENROUTER_API_KEY",
+  url: "https://openrouter.ai/keys",
+  placeholder: "sk-or-v1-...",
+  configProvider: "openrouter",
+  baseUrl: "https://openrouter.ai/api/v1",
+  needsKey: true,
+} as const;
+
 export const PROVIDERS = {
   // Ordered for the Providers / model-picker dropdown.  Each value must
   // match a provider name `hermes-agent` recognises (see
   // hermes_cli/auth.py::resolve_provider — _PROVIDER_ALIASES + PROVIDER_REGISTRY)
   // so the gateway routes correctly when the user picks the entry.  The
   // catch-all `custom` stays last for unlisted OpenAI-compatible endpoints.
-  options: [
-    { value: "auto", label: "constants.autoDetect" },
-    // Aggregators
-    { value: "openrouter", label: "constants.openrouterName" },
-    // First-party API providers
-    { value: "anthropic", label: "constants.anthropicName" },
-    { value: "openai", label: "constants.openaiName" },
-    { value: "openai-codex", label: "constants.openaiCodexName" },
-    { value: "google", label: "constants.googleName" },
-    { value: "xai", label: "constants.xaiName" },
-    { value: "mistral", label: "Mistral" },
-    { value: "deepseek", label: "DeepSeek" },
-    { value: "groq", label: "Groq" },
-    { value: "together", label: "Together AI" },
-    { value: "fireworks", label: "Fireworks AI" },
-    { value: "cerebras", label: "Cerebras" },
-    { value: "perplexity", label: "Perplexity" },
-    { value: "huggingface", label: "Hugging Face" },
-    { value: "nvidia", label: "NVIDIA NIM" },
-    { value: "zai", label: "Z.ai / GLM" },
-    { value: "qwen", label: "Qwen" },
-    { value: "minimax", label: "MiniMax" },
-    { value: "nous", label: "constants.nousName" },
-    // Subscription / OAuth plans
-    // openai-codex is listed once above (first-party group) via #102 —
-    // not repeated here to avoid a duplicate <option> value.
-    { value: "xai-oauth", label: "xAI Grok (OAuth)" },
-    { value: "qwen-oauth", label: "Qwen (OAuth)" },
-    { value: "google-gemini-cli", label: "Gemini (CLI OAuth)" },
-    { value: "minimax-oauth", label: "MiniMax (OAuth)" },
-    { value: "kimi-coding", label: "Kimi (Coding Plan)" },
-    // Catch-all for any other OpenAI-compatible endpoint or local LLM
-    { value: "custom", label: "constants.customOpenAICompatibleName" },
-  ],
+  // ── The one provider this build offers ──────────────────────────
+  //
+  // Narrowed from twenty-plus entries to a single choice. A salesperson has
+  // no basis for picking between Fireworks and Cerebras, and every extra row
+  // is a way to misconfigure the app. To move onto an in-house gateway,
+  // change ACTIVE_PROVIDER below and this list follows.
+  //
+  // `labels` deliberately keeps the full map: a profile configured before
+  // this change still renders a human name instead of a raw id.
+  options: [{ value: ACTIVE_PROVIDER.value, label: ACTIVE_PROVIDER.label }],
 
   labels: {
     openrouter: "constants.openrouterName",
@@ -83,109 +83,8 @@ export const PROVIDERS = {
     custom: "OpenAI Compatible / Local",
   } as Record<string, string>,
 
-  setup: [
-    {
-      id: "openrouter",
-      name: "constants.openrouterName",
-      desc: "constants.openrouterDesc",
-      tag: "constants.openrouterTag",
-      envKey: "OPENROUTER_API_KEY",
-      url: "https://openrouter.ai/keys",
-      placeholder: "sk-or-v1-...",
-      configProvider: "openrouter",
-      baseUrl: "https://openrouter.ai/api/v1",
-      needsKey: true,
-    },
-    {
-      id: "anthropic",
-      name: "constants.anthropicName",
-      desc: "constants.anthropicDesc",
-      tag: "",
-      envKey: "ANTHROPIC_API_KEY",
-      url: "https://console.anthropic.com/settings/keys",
-      placeholder: "sk-ant-...",
-      configProvider: "anthropic",
-      baseUrl: "",
-      needsKey: true,
-    },
-    {
-      id: "openai",
-      name: "constants.openaiName",
-      desc: "constants.openaiDesc",
-      tag: "",
-      envKey: "OPENAI_API_KEY",
-      url: "https://platform.openai.com/api-keys",
-      placeholder: "sk-...",
-      // Routed through the `custom` provider with an explicit base_url:
-      // hermes-agent's resolve_provider does not recognise a bare `openai`
-      // provider id (issue #294). The `custom` + api.openai.com path is
-      // accepted, and the OpenAI key is picked up via the known-host
-      // base-URL mapping.
-      configProvider: "custom",
-      baseUrl: "https://api.openai.com/v1",
-      needsKey: true,
-    },
-    {
-      id: "openai-codex",
-      name: "constants.openaiCodexName",
-      desc: "constants.openaiCodexDesc",
-      tag: "constants.openaiCodexTag",
-      envKey: "",
-      url: "",
-      placeholder: "",
-      configProvider: "openai-codex",
-      baseUrl: "",
-      needsKey: false,
-    },
-    {
-      id: "google",
-      name: "constants.googleName",
-      desc: "constants.googleDesc",
-      tag: "",
-      envKey: "GOOGLE_API_KEY",
-      url: "https://aistudio.google.com/app/apikey",
-      placeholder: "AIza...",
-      configProvider: "google",
-      baseUrl: "",
-      needsKey: true,
-    },
-    {
-      id: "xai",
-      name: "constants.xaiName",
-      desc: "constants.xaiDesc",
-      tag: "",
-      envKey: "XAI_API_KEY",
-      url: "https://console.x.ai",
-      placeholder: "xai-...",
-      configProvider: "xai",
-      baseUrl: "",
-      needsKey: true,
-    },
-    {
-      id: "nous",
-      name: "constants.nousName",
-      desc: "constants.nousDesc",
-      tag: "constants.nousTag",
-      envKey: "",
-      url: "",
-      placeholder: "",
-      configProvider: "nous",
-      baseUrl: "",
-      needsKey: false,
-    },
-    {
-      id: "local",
-      name: "constants.localName",
-      desc: "constants.localDesc",
-      tag: "constants.localTag",
-      envKey: "",
-      url: "",
-      placeholder: "sk-...",
-      configProvider: "custom",
-      baseUrl: "http://localhost:1234/v1",
-      needsKey: false,
-    },
-  ],
+  // Setup wizard shows exactly the provider the app supports.
+  setup: [ACTIVE_PROVIDER],
 };
 
 // Subscription / OAuth-plan providers — these authenticate through an
@@ -198,29 +97,10 @@ export interface OAuthProviderDef {
   desc: string;
 }
 
-export const OAUTH_PROVIDERS: OAuthProviderDef[] = [
-  {
-    id: "openai-codex",
-    name: "ChatGPT (Codex Plan)",
-    desc: "providers.oauth.codexDesc",
-  },
-  {
-    id: "xai-oauth",
-    name: "xAI Grok (OAuth)",
-    desc: "providers.oauth.xaiDesc",
-  },
-  { id: "qwen-oauth", name: "Qwen (OAuth)", desc: "providers.oauth.qwenDesc" },
-  {
-    id: "google-gemini-cli",
-    name: "Gemini (CLI OAuth)",
-    desc: "providers.oauth.geminiDesc",
-  },
-  {
-    id: "minimax-oauth",
-    name: "MiniMax (OAuth)",
-    desc: "providers.oauth.minimaxDesc",
-  },
-];
+// Empty while the app ships a single key-based provider. The Providers
+// screen hides the section when this is empty, so a subscription login can be
+// reintroduced by adding entries here and nothing else.
+export const OAUTH_PROVIDERS: OAuthProviderDef[] = [];
 
 export interface LocalPreset {
   id: string;
@@ -300,6 +180,43 @@ export const LOCAL_PRESETS: LocalPreset[] = [
 ];
 
 // ── Theme ───────────────────────────────────────────────
+
+/**
+ * Bundled-skill categories the Playbooks screen will show.
+ *
+ * The upstream set is a general-purpose agent's library — ComfyUI,
+ * TouchDesigner, p5js, python-debugpy, GitHub PR workflows, MLOps, smart-home
+ * lighting, iMessage. Around a hundred skills across sixteen categories, and
+ * almost none of it is sales work. Browsing it is how a salesperson ends up
+ * installing a debugger.
+ *
+ * An allowlist rather than a denylist on purpose: upstream adds categories,
+ * and the failure mode of a denylist is that new unrelated tooling appears in
+ * the product without anyone deciding it should.
+ *
+ * What is kept is the document, mail, meeting and research work a sales team
+ * actually does: docx/xlsx/pptx/pdf, Google Workspace, Notion, inbox triage,
+ * meeting action items, competitor monitoring.
+ */
+export const SALES_SKILL_CATEGORIES = [
+  "email",
+  "note-taking",
+  "productivity",
+  "research",
+] as const;
+
+/**
+ * Individual skills hidden even though their category is allowed.
+ *
+ * The category allowlist above sets the broad shape; this removes specific
+ * tools the team does not use. Kept as a denylist rather than turning
+ * `productivity` into a per-skill allowlist because the surface is now four
+ * vetted categories rather than the whole upstream library — a new
+ * productivity skill appearing is a much smaller surprise than a new
+ * category, and an allowlist here would mean editing this file every time
+ * upstream ships a document tool the team would actually want.
+ */
+export const EXCLUDED_SKILLS = ["notion"] as const;
 
 export const THEME_OPTIONS = [
   { value: "light" as const, label: "constants.themeLight" },

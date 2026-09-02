@@ -1,7 +1,7 @@
 export default {
   title: "Memory",
   subtitle:
-    "What Hermes remembers about you and your environment across sessions.",
+    "What the agent remembers about your accounts, contacts, and how you work.",
   sessions: "Sessions",
   messages: "Messages",
   memories: "Memories",

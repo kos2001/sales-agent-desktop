@@ -17,6 +17,9 @@
 //                       are checked in
 //   resources/icon.png  imported by the main process (`?asset`) for the
 //                       BrowserWindow icon on Linux
+//   src/renderer/src/assets/icon.png
+//                       the in-app brand mark (sidebar, chat empty state,
+//                       agent message avatars)
 import { deflateSync } from "zlib";
 import { writeFileSync } from "fs";
 import { fileURLToPath } from "url";
@@ -266,6 +269,11 @@ const png = encodePng(render());
 for (const target of [
   join(repoRoot, "build", "icon.png"),
   join(repoRoot, "resources", "icon.png"),
+  // The in-app brand mark: sidebar, chat empty state, and every agent
+  // message row. It was left out of this list, so while the packaged icon
+  // was rebranded the mark users actually look at all day stayed on an
+  // unrelated logo. One definition, every surface.
+  join(repoRoot, "src", "renderer", "src", "assets", "icon.png"),
 ]) {
   writeFileSync(target, png);
   console.log(`wrote ${target} (${(png.length / 1024).toFixed(1)} KB)`);

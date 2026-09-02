@@ -1,7 +1,7 @@
 export default {
-  title: "Profiles",
+  title: "영업 프로필",
   subtitle:
-    "Each profile is an isolated Hermes workspace with its own config, memory, and skills",
+    "팀·지역·제품군별로 분리된 작업공간입니다. 메모리와 플레이북, 설정을 따로 가집니다",
   newAgent: "New Agent",
   namePlaceholder: "Agent name (e.g. coder)",
   cloneConfig: "Clone config & API keys from default",

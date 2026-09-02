@@ -1,6 +1,7 @@
 export default {
-  title: "Schedules",
-  subtitle: "Automate tasks with scheduled agent runs",
+  title: "Reminders",
+  subtitle:
+    "Standing follow-ups and pipeline checks that run on their own schedule",
   newTask: "New Task",
   name: "Name",
   frequency: "Frequency",

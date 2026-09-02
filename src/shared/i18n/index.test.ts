@@ -3,7 +3,7 @@ import { t } from "./index";
 
 describe("shared i18n", () => {
   it("returns English text by default", () => {
-    expect(t("welcome.title")).toBe("Welcome to Hermes");
+    expect(t("welcome.title")).toBe("Welcome to Sales Agent");
   });
 
   it("falls back to the key when an English key is missing", () => {

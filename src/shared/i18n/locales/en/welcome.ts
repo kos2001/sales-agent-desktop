@@ -1,7 +1,7 @@
 export default {
-  title: "Welcome to Hermes",
+  title: "Welcome to Sales Agent",
   subtitle:
-    "Your self-improving AI assistant that runs locally on your machine. Private, powerful, and always learning.",
+    "A sales assistant that runs on your own machine. Customer data stays local, and it learns how your team sells.",
   installIssueTitle: "Installation Issue",
   getStarted: "Get Started",
   retryInstall: "Retry Installation",
@@ -11,9 +11,9 @@ export default {
   installSizeHint: "This will install required components (~2 GB)",
   copyInstallCommand: "Copy install command",
   dividerOr: "or",
-  connectRemote: "Connect to Remote Hermes",
-  connectRemoteTitle: "Connect to Remote Hermes",
-  connectRemoteSubtitle: "Enter the URL of a running Hermes API server.",
+  connectRemote: "Connect to a remote server",
+  connectRemoteTitle: "Connect to a remote server",
+  connectRemoteSubtitle: "Enter the URL of a running agent API server.",
   remoteServerUrl: "Server URL",
   remoteApiKey: "API Key (optional)",
   remoteApiKeyPlaceholder: "Bearer token (API_SERVER_KEY)",
