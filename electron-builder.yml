@@ -12,6 +12,20 @@ files:
   - "!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}"
   - "!{.env,.env.*,.npmrc,pnpm-lock.yaml}"
   - "!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}"
+  # Repository directories that are build- or development-time only. These
+  # were all shipping inside app.asar: 55 test files, the Next.js marketing
+  # site, README screenshots, and — the reason this is a security fix rather
+  # than a size one — `claudedocs/`, which carries internal engineering notes
+  # and a security document naming this app's own unfixed weaknesses. None of
+  # them is referenced at runtime; the `scripts/` the main process does load
+  # live under `resources/pii-gateway/`, which stays.
+  - "!{tests,docs,claudedocs,previews,changelogs,scripts,web}/**"
+  - "!{.github,.husky,.claude,.agents}/**"
+  # CLAUDE.md describes the architecture and names the security-sensitive
+  # modules — repo guidance, not something to hand to end users.
+  - "!{CONTRIBUTING.md,CONTRIBUTING.zh-CN.md,README.zh-CN.md,CLAUDE.md}"
+  - "!{.browserslistrc,.gitattributes,skills-lock.json,vitest.config.ts}"
+  # LICENSE stays: upstream is MIT and the notice must travel with copies.
 asarUnpack:
   - resources/**
 win:
