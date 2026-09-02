@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "note": [
+    "Curated MCP connectors for sales work. Data only — nothing here is",
+    "enabled, credentialed, or executed by shipping this file. The Connectors",
+    "screen renders these entries and the user turns one on after supplying",
+    "their own credentials.",
+    "",
+    "Inclusion rule: first-party only. Every entry is published and hosted by",
+    "the vendor that owns the data it reaches. Community CRM connectors were",
+    "reviewed and excluded — the common pattern is `npx <pkg>` resolving the",
+    "latest version at launch, which means unreviewed third-party code running",
+    "locally with a CRM token that can read every customer record. That is not",
+    "a trade this product makes on the user's behalf. Users who want one can",
+    "still add it by hand in config.yaml; we just don't ship it as a default.",
+    "",
+    "`url` is null where the endpoint is tenant-specific and the user must",
+    "copy it from their own admin console. We do not guess these."
+  ],
+  "servers": [
+    {
+      "id": "salesforce",
+      "label": "Salesforce",
+      "vendor": "Salesforce",
+      "trust": "first-party",
+      "hosting": "vendor-hosted",
+      "transport": "http",
+      "url": null,
+      "urlSource": "Salesforce Setup → MCP Servers. The endpoint is per-org.",
+      "auth": "OAuth 2.0 with PKCE, per user",
+      "dataAccess": "CRM records, flows, Apex actions and queries the signed-in user can already reach",
+      "whySafe": "The agent inherits the user's own permissions — CRUD, field-level security and sharing rules still apply, and the human's name stays on the audit trail.",
+      "requires": "Enterprise Edition org or above",
+      "docs": "https://developer.salesforce.com/blogs/2026/04/salesforce-hosted-mcp-servers-are-now-generally-available",
+      "salesUse": [
+        "파이프라인 조회 및 단계 점검",
+        "미팅 후 활동 기록 작성",
+        "고객사·연락처 조회"
+      ],
+      "enabledByDefault": false
+    },
+    {
+      "id": "hubspot",
+      "label": "HubSpot",
+      "vendor": "HubSpot",
+      "trust": "first-party",
+      "hosting": "vendor-hosted",
+      "transport": "http",
+      "url": null,
+      "urlSource": "HubSpot developer console → MCP. Scoped to your portal.",
+      "auth": "HubSpot OAuth / private app token",
+      "dataAccess": "Contacts, companies, deals and engagements in the connected portal",
+      "whySafe": "Published by HubSpot against their own API, so scopes are the ones the portal already enforces.",
+      "requires": "Latest Developer Platform version on the portal",
+      "docs": "https://developers.hubspot.com/ai-tools/mcp",
+      "salesUse": [
+        "딜 단계 갱신",
+        "연락처 이력 조회",
+        "미팅 노트를 engagement으로 기록"
+      ],
+      "enabledByDefault": false
+    },
+    {
+      "id": "google-calendar",
+      "label": "Google Calendar",
+      "vendor": "Google",
+      "trust": "first-party",
+      "hosting": "vendor-hosted",
+      "transport": "http",
+      "url": null,
+      "urlSource": "Google Cloud console → managed MCP servers.",
+      "auth": "Google OAuth, per user",
+      "dataAccess": "Calendar events for the signed-in account",
+      "whySafe": "Google-managed server; consent and scope review happen in the Google account flow rather than in this app.",
+      "requires": "Google Workspace account",
+      "docs": "https://cloud.google.com/blog/products/ai-machine-learning/google-managed-mcp-servers-are-available-for-everyone",
+      "salesUse": ["미팅 일정 확인", "팔로업 일정 잡기", "주간 방문 계획 정리"],
+      "enabledByDefault": false
+    },
+    {
+      "id": "google-gmail",
+      "label": "Gmail",
+      "vendor": "Google",
+      "trust": "first-party",
+      "hosting": "vendor-hosted",
+      "transport": "http",
+      "url": null,
+      "urlSource": "Google Cloud console → managed MCP servers.",
+      "auth": "Google OAuth, per user",
+      "dataAccess": "Mail threads for the signed-in account",
+      "whySafe": "Google-managed server; scopes are granted and revocable in the user's Google account.",
+      "requires": "Google Workspace account",
+      "docs": "https://cloud.google.com/blog/products/ai-machine-learning/google-managed-mcp-servers-are-available-for-everyone",
+      "salesUse": ["고객 회신 여부 확인", "메일 스레드 요약", "팔로업 메일 초안"],
+      "caution": "메일 본문은 이 앱의 정형 PII 비식별화를 거치지만 이름·자유 서술은 마스킹되지 않는다. 고객 데이터 규칙은 sales/customer-data-handling 스킬을 따를 것.",
+      "enabledByDefault": false
+    }
+  ]
+}

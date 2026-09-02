@@ -1,5 +1,6 @@
 import type { AppLocale } from "../shared/i18n/types";
 import type { Attachment } from "../shared/attachments";
+import type { SalesConnector } from "../shared/sales";
 
 interface ElectronAPI {
   process: {
@@ -452,6 +453,8 @@ interface HermesAPI {
       installed: boolean;
     }>
   >;
+  /** Curated first-party MCP connectors. Metadata only. */
+  listSalesConnectors: () => Promise<SalesConnector[]>;
   getSkillContent: (skillPath: string) => Promise<string>;
   installSkill: (
     identifier: string,

@@ -14,6 +14,7 @@ import type { AppUpdater } from "electron-updater";
 import icon from "../../resources/icon.png?asset";
 import type { Attachment } from "../shared/attachments";
 import { stageAttachment, clearStagedAttachments } from "./attachment-staging";
+import { seedSalesSkills, salesMcpCatalog } from "./sales-harness";
 import { discoverProviderModels } from "./model-discovery";
 import { readMediaAsDataUrl, saveMedia, mediaFileExists } from "./media";
 import {
@@ -1251,6 +1252,10 @@ function setupIPC(): void {
       return sshListInstalledSkills(conn.ssh, profile);
     return listInstalledSkills(profile);
   });
+  // Curated connector catalogue. Metadata only — this returns descriptions
+  // of first-party MCP servers the user may choose to configure. It does
+  // not enable, credential or launch anything.
+  ipcMain.handle("list-sales-connectors", () => salesMcpCatalog());
   ipcMain.handle("list-bundled-skills", () => {
     const conn = getConnectionConfig();
     if (conn.mode === "ssh" && conn.ssh) return sshListBundledSkills(conn.ssh);
@@ -1841,8 +1846,12 @@ function setupUpdater(): void {
 }
 
 app.whenReady().then(() => {
-  app.name = "Hermes";
-  electronApp.setAppUserModelId("com.nousresearch.hermes");
+  app.name = "Sales Agent";
+  // Must match `appId` in electron-builder.yml. Windows keys taskbar
+  // grouping, shortcut pinning and toast notifications off this string,
+  // so a mismatch with the installed app's identity silently breaks all
+  // three.
+  electronApp.setAppUserModelId("com.kos2001.salesagent");
 
   app.on("browser-window-created", (_, window) => {
     optimizer.watchWindowShortcuts(window);
@@ -1858,6 +1867,23 @@ app.whenReady().then(() => {
   setupIPC();
   createWindow();
   setupUpdater();
+
+  // Install the bundled sales skills into HERMES_HOME. Versioned and
+  // idempotent, so this is a marker read on every launch but a copy only
+  // when the shipped set changes. Local mode only — under SSH/remote the
+  // skills belong to the machine actually running Hermes.
+  (() => {
+    const conn = getConnectionConfig();
+    if (conn.mode !== "local") return;
+    const result = seedSalesSkills();
+    if (result.error) {
+      console.error("[sales-harness] seeding failed:", result.error);
+    } else if (result.seeded.length > 0) {
+      console.log(
+        `[sales-harness] installed ${result.seeded.length} sales skills: ${result.seeded.join(", ")}`,
+      );
+    }
+  })();
 
   // Reconcile API_SERVER_KEY across .env / config.yaml top-level /
   // platforms.api_server.token so the desktop client and the local

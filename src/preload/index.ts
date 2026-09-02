@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer, webUtils } from "electron";
 import type { AppLocale } from "../shared/i18n/types";
 import type { Attachment } from "../shared/attachments";
+import type { SalesConnector } from "../shared/sales";
 
 const electronAPI = {
   process: {
@@ -551,6 +552,10 @@ const hermesAPI = {
       installed: boolean;
     }>
   > => ipcRenderer.invoke("list-bundled-skills"),
+  /** Curated first-party MCP connectors. Metadata only — reading this
+   *  neither enables nor launches a server. */
+  listSalesConnectors: (): Promise<SalesConnector[]> =>
+    ipcRenderer.invoke("list-sales-connectors"),
   getSkillContent: (skillPath: string): Promise<string> =>
     ipcRenderer.invoke("get-skill-content", skillPath),
   installSkill: (
