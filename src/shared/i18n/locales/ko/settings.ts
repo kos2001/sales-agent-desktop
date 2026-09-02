@@ -27,7 +27,7 @@ export default {
   },
   analytics: {
     label: "Send anonymous usage analytics",
-    hint: "Helps improve Hermes Desktop by sending anonymous, aggregated usage data to the project's PostHog instance. You can turn this off at any time.",
+    hint: "익명 집계 사용 통계를 보내 제품 개선에 사용합니다. 고객 데이터나 대화 내용은 절대 포함되지 않으며, 언제든 끌 수 있습니다.",
     disclosure: {
       uuid: "A random per-install identifier stored only on this device (no name, email, or account info).",
       platform: "Your operating system, Electron version, and Node.js version.",
@@ -41,7 +41,7 @@ export default {
   },
   notDetected: "Not detected",
   updatedSuccessfully: "Updated successfully!",
-  updateSuccess: "Hermes updated successfully.",
+  updateSuccess: "업데이트가 완료되었습니다.",
   updateFailed: "Update failed.",
   version: "v{{version}}",
   proxyPlaceholder: "e.g. socks5://127.0.0.1:1080 or http://proxy:8080",
@@ -68,14 +68,14 @@ export default {
     "Couldn't reach the provider's model list — you can still type a model name",
   customBaseUrlHint: "OpenAI-compatible API endpoint",
   poolHint:
-    "Add multiple API Keys for the same provider for automatic rotation and load balancing. Hermes will cycle through them.",
+    "같은 제공자의 API 키를 여러 개 등록해 자동으로 번갈아 사용합니다.",
   add: "Add",
   remove: "Remove",
   keyLabel: "Key",
   empty: "(empty)",
   dataSection: "Data",
   dataHint:
-    "Export or import your Hermes configuration, sessions, skills, and memory.",
+    "설정, 계정 기록, 플레이북, 메모리를 내보내거나 가져옵니다.",
   backingUp: "Backing up...",
   exportBackup: "Export Backup",
   importing: "Importing...",

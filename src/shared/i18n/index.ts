@@ -26,7 +26,6 @@ import soulEn from "./locales/en/soul";
 import memoryEn from "./locales/en/memory";
 import installEn from "./locales/en/install";
 import constantsEn from "./locales/en/constants";
-import kanbanEn from "./locales/en/kanban";
 import versionCheckEn from "./locales/en/versionCheck";
 import commonEs from "./locales/es/common";
 import navigationEs from "./locales/es/navigation";
@@ -148,7 +147,6 @@ import soulKo from "./locales/ko/soul";
 import memoryKo from "./locales/ko/memory";
 import installKo from "./locales/ko/install";
 import constantsKo from "./locales/ko/constants";
-import kanbanKo from "./locales/ko/kanban";
 import versionCheckKo from "./locales/ko/versionCheck";
 import commonPt from "./locales/pt-BR/common";
 import navigationPt from "./locales/pt-BR/navigation";
@@ -190,7 +188,6 @@ import soulPtPt from "./locales/pt-PT/soul";
 import memoryPtPt from "./locales/pt-PT/memory";
 import installPtPt from "./locales/pt-PT/install";
 import constantsPtPt from "./locales/pt-PT/constants";
-import kanbanPtPt from "./locales/pt-PT/kanban";
 
 export const resources = {
   en: {
@@ -215,7 +212,6 @@ export const resources = {
       memory: memoryEn,
       install: installEn,
       constants: constantsEn,
-      kanban: kanbanEn,
       versionCheck: versionCheckEn,
     },
   },
@@ -361,7 +357,6 @@ export const resources = {
       memory: memoryPtPt,
       install: installPtPt,
       constants: constantsPtPt,
-      kanban: kanbanPtPt,
     },
   },
   ja: {
@@ -410,7 +405,6 @@ export const resources = {
       memory: memoryKo,
       install: installKo,
       constants: constantsKo,
-      kanban: kanbanKo,
       versionCheck: versionCheckKo,
     },
   },
