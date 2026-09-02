@@ -1,25 +1,25 @@
 # Generated from this template by scripts/generate-winget-manifests.mjs.
-PackageIdentifier: NousResearch.HermesDesktop
-PackageVersion: { { VERSION } }
+PackageIdentifier: kos2001.SalesAgent
+PackageVersion: {{VERSION}}
 PackageLocale: en-US
-Publisher: Nous Research
-PublisherUrl: https://github.com/fathah/hermes-desktop
-PublisherSupportUrl: https://github.com/fathah/hermes-desktop/issues
-PackageName: Hermes Agent
-PackageUrl: https://github.com/fathah/hermes-desktop
+Publisher: kos2001
+PublisherUrl: https://github.com/kos2001/sales-agent-desktop
+PublisherSupportUrl: https://github.com/kos2001/sales-agent-desktop/issues
+PackageName: Sales Agent
+PackageUrl: https://github.com/kos2001/sales-agent-desktop
 License: MIT
-LicenseUrl: https://github.com/fathah/hermes-desktop/blob/main/LICENSE
-ShortDescription: Self-improving AI assistant desktop app
+LicenseUrl: https://github.com/kos2001/sales-agent-desktop/blob/main/LICENSE
+ShortDescription: Sales assistant desktop app with customer-data protection
 Description: |-
-  Hermes Desktop is a native desktop app for installing, configuring, and chatting
-  with Hermes Agent — a self-improving AI assistant with tool use, multi-platform
-  messaging, and a closed learning loop.
+  Sales Agent is a native desktop app for sales and marketing teams: an AI
+  assistant for customer conversations, meeting notes and pipeline work, with
+  on-device de-identification so customer records stay local.
 Tags:
   - ai
-  - agent
+  - sales
+  - crm
   - desktop
-  - electron
-  - llm
-ReleaseNotesUrl: { { RELEASE_NOTES_URL } }
+  - privacy
+ReleaseNotesUrl: {{RELEASE_NOTES_URL}}
 ManifestType: defaultLocale
 ManifestVersion: 1.6.0

@@ -1,5 +1,5 @@
-appId: com.nousresearch.hermes
-productName: Hermes Agent
+appId: com.kos2001.salesagent
+productName: Sales Agent
 directories:
   buildResources: build
 files:
@@ -29,7 +29,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: hermes-agent
+  executableName: sales-agent
   target:
     - nsis
     - portable
@@ -44,7 +44,7 @@ nsis:
   perMachine: false
 mac:
   artifactName: ${name}-${version}-${arch}-${os}.${ext}
-  icon: build/icon.icns
+  icon: build/icon.png
   entitlements: build/entitlements.mac.plist
   entitlementsInherit: build/entitlements.mac.inherit.plist
   extendInfo:
@@ -63,14 +63,14 @@ linux:
     - snap
     - deb
     - rpm
-  maintainer: electronjs.org
-  vendor: Nous Research
+  maintainer: kos2001
+  vendor: kos2001
   category: Utility
-  synopsis: Self-improving AI assistant desktop app
+  synopsis: Sales assistant desktop app with customer-data protection
   description: >-
-    Hermes Desktop is a native desktop app for installing, configuring, and chatting
-    with Hermes Agent — a self-improving AI assistant with tool use, multi-platform
-    messaging, and a closed learning loop.
+    Sales Agent is a native desktop app for sales and marketing teams: an AI
+    assistant for customer conversations, meeting notes and pipeline work, with
+    on-device de-identification so customer records stay local.
 appImage:
   artifactName: ${name}-${version}.${ext}
 rpm:

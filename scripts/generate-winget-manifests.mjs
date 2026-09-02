@@ -2,10 +2,15 @@
 //
 // Fills the YAML templates in build/winget/ with the current version,
 // installer URL, and SHA256 of the NSIS installer in dist/, and writes
-// the result under dist/winget/manifests/n/NousResearch/HermesDesktop/<version>/.
+// the result under dist/winget/manifests/<initial>/<publisher>/<package>/<version>/.
 //
-// Run from CLI: VERSION=0.2.3 PUBLISH_OWNER=fathah node scripts/generate-winget-manifests.mjs
-// Or import as ESM and call generateWingetManifests({ rootDir, version, name, publishOwner }).
+// Publisher and package identity are parameters, not constants: this repo is
+// a fork, and the identity used to be hardcoded to NousResearch.HermesDesktop
+// — which would have published these builds under upstream's name.
+//
+// Run from CLI: VERSION=0.2.3 PUBLISH_OWNER=kos2001 node scripts/generate-winget-manifests.mjs
+// Or import as ESM and call generateWingetManifests({ rootDir, version, name,
+// publishOwner, publisher, packageName, repo }).
 
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
@@ -18,7 +23,13 @@ export function generateWingetManifests({
   version,
   name,
   publishOwner,
+  publisher = "kos2001",
+  packageName = "SalesAgent",
+  repo = "sales-agent-desktop",
 }) {
+  const identifier = `${publisher}.${packageName}`;
+  // winget-pkgs buckets manifests under the publisher's first letter.
+  const bucket = publisher.charAt(0).toLowerCase();
   const exePath = join(rootDir, "dist", `${name}-${version}-setup.exe`);
   if (!existsSync(exePath)) {
     throw new Error(
@@ -32,8 +43,8 @@ export function generateWingetManifests({
     .digest("hex")
     .toUpperCase();
   const releaseDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-  const installerUrl = `https://github.com/${publishOwner}/hermes-desktop/releases/download/v${version}/${name}-${version}-setup.exe`;
-  const releaseNotesUrl = `https://github.com/${publishOwner}/hermes-desktop/releases/tag/v${version}`;
+  const installerUrl = `https://github.com/${publishOwner}/${repo}/releases/download/v${version}/${name}-${version}-setup.exe`;
+  const releaseNotesUrl = `https://github.com/${publishOwner}/${repo}/releases/tag/v${version}`;
 
   const replacements = {
     VERSION: version,
@@ -62,20 +73,17 @@ export function generateWingetManifests({
     "dist",
     "winget",
     "manifests",
-    "n",
-    "NousResearch",
-    "HermesDesktop",
+    bucket,
+    publisher,
+    packageName,
     version,
   );
   mkdirSync(outDir, { recursive: true });
 
   const files = [
-    ["Installer.template.yaml", "NousResearch.HermesDesktop.installer.yaml"],
-    [
-      "Locale.en-US.template.yaml",
-      "NousResearch.HermesDesktop.locale.en-US.yaml",
-    ],
-    ["Version.template.yaml", "NousResearch.HermesDesktop.yaml"],
+    ["Installer.template.yaml", `${identifier}.installer.yaml`],
+    ["Locale.en-US.template.yaml", `${identifier}.locale.en-US.yaml`],
+    ["Version.template.yaml", `${identifier}.yaml`],
   ];
 
   for (const [tmplName, outName] of files) {
@@ -96,7 +104,7 @@ if (isCli) {
     rootDir,
     version: process.env.VERSION || pkg.version,
     name: pkg.name,
-    publishOwner: process.env.PUBLISH_OWNER || "fathah",
+    publishOwner: process.env.PUBLISH_OWNER || "kos2001",
   });
   console.log(`Winget manifests generated in ${result.outDir}`);
   console.log(`InstallerSha256: ${result.sha256}`);
