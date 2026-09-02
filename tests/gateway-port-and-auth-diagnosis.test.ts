@@ -13,6 +13,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_LOCAL_API_PORT,
   diagnoseGatewayError,
+  readGatewayPidFile,
   resolveLocalApiPort,
 } from "../src/main/gateway-diagnosis";
 
@@ -160,5 +161,59 @@ describe("diagnoseGatewayError", () => {
       port: 8642,
     });
     expect(message).toContain("another Hermes gateway");
+  });
+});
+
+describe("readGatewayPidFile", () => {
+  it("returns nothing when there is no pid file", () => {
+    expect(readGatewayPidFile(null, "/home")).toEqual({
+      pid: null,
+      homeMatches: false,
+    });
+  });
+
+  it("reads the JSON form the Python gateway writes, including its home", () => {
+    const raw = JSON.stringify({
+      pid: 113,
+      kind: "hermes-gateway",
+      hermes_home: "/Users/x/.hermes/profiles/lsi",
+    });
+    expect(readGatewayPidFile(raw, "/Users/x/.hermes/profiles/lsi")).toEqual({
+      pid: 113,
+      homeMatches: true,
+    });
+  });
+
+  it("reports a pid file left behind by a DIFFERENT home as not ours", () => {
+    // This is the whole point: a stale or foreign pid file must never be read
+    // as "our gateway is up".
+    const raw = JSON.stringify({
+      pid: 113,
+      hermes_home: "/Users/x/.hermes/profiles/lsi",
+    });
+    expect(readGatewayPidFile(raw, "/tmp/hermes-fresh.ABC")).toEqual({
+      pid: 113,
+      homeMatches: false,
+    });
+  });
+
+  it("tolerates trailing separators and whitespace when comparing homes", () => {
+    const raw = JSON.stringify({ pid: 7, hermes_home: "/a/b/" });
+    expect(readGatewayPidFile(raw, "/a/b").homeMatches).toBe(true);
+  });
+
+  it("accepts the bare-integer form, which carries no home to check", () => {
+    // Older gateways wrote just the pid. We cannot prove ownership, so we
+    // trust it rather than accusing the user of a port conflict.
+    expect(readGatewayPidFile("4321\n", "/anywhere")).toEqual({
+      pid: 4321,
+      homeMatches: true,
+    });
+  });
+
+  it("returns no pid for malformed content", () => {
+    for (const raw of ["", "   ", "{", "{}", '{"pid":"abc"}', "not-a-pid"]) {
+      expect(readGatewayPidFile(raw, "/home").pid, `input ${raw}`).toBeNull();
+    }
   });
 });

@@ -106,3 +106,65 @@ export function diagnoseGatewayError(ctx: GatewayErrorContext): string {
     `Gateway said: ${ctx.upstreamMessage}`,
   ].join("\n");
 }
+
+export interface GatewayPidInfo {
+  /** The pid the file names, or null when there is no usable pid. */
+  pid: number | null;
+  /**
+   * Whether the file claims to belong to the HERMES_HOME we are asking about.
+   * False for a foreign or stale file — the case that made the diagnosis lie.
+   */
+  homeMatches: boolean;
+}
+
+function sameHome(a: string, b: string): boolean {
+  const norm = (v: string): string => v.trim().replace(/\/+$/, "");
+  return norm(a) === norm(b);
+}
+
+/**
+ * Interpret `gateway.pid`.
+ *
+ * The in-memory ChildProcess handle is NOT a usable "is our gateway up?"
+ * signal: send-message spawns the gateway and issues the HTTP request
+ * immediately, so for the first second or two the handle is alive even when
+ * the gateway is about to die on a bind conflict. That race made the 401
+ * diagnosis blame token drift for what was actually a port conflict.
+ *
+ * The pid file is written by the gateway once it is actually up, and the JSON
+ * form carries `hermes_home`, so it answers the question that matters: is the
+ * gateway that is up *ours*?
+ */
+export function readGatewayPidFile(
+  raw: string | null,
+  ourHome: string,
+): GatewayPidInfo {
+  const absent: GatewayPidInfo = { pid: null, homeMatches: false };
+  if (raw == null) return absent;
+  const trimmed = raw.trim();
+  if (!trimmed) return absent;
+
+  if (trimmed.startsWith("{")) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      const pid =
+        typeof parsed.pid === "number" && Number.isFinite(parsed.pid)
+          ? parsed.pid
+          : null;
+      if (pid == null) return absent;
+      const home = parsed.hermes_home;
+      return {
+        pid,
+        // No hermes_home recorded: an older gateway. Trust it rather than
+        // accusing the user of a conflict we cannot actually prove.
+        homeMatches: typeof home === "string" ? sameHome(home, ourHome) : true,
+      };
+    } catch {
+      return absent;
+    }
+  }
+
+  if (!/^\d+$/.test(trimmed)) return absent;
+  // Bare-integer form carries no home; nothing to contradict, so trust it.
+  return { pid: Number(trimmed), homeMatches: true };
+}

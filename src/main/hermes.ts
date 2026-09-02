@@ -22,6 +22,7 @@ import {
 import {
   DEFAULT_LOCAL_API_PORT,
   diagnoseGatewayError,
+  readGatewayPidFile,
   resolveLocalApiPort,
 } from "./gateway-diagnosis";
 import {
@@ -30,7 +31,7 @@ import {
   isSshTunnelHealthy,
   startSshTunnel,
 } from "./ssh-tunnel";
-import { pidIsAliveAs, stripAnsi } from "./utils";
+import { pidIsAliveAs, profileHome, stripAnsi } from "./utils";
 import { readModels } from "./models";
 import { HIDDEN_SUBPROCESS_OPTIONS } from "./process-options";
 import { type Attachment, escapeXmlAttr } from "../shared/attachments";
@@ -52,6 +53,29 @@ export function getLocalApiPort(profile?: string): number {
 
 function localApiUrl(profile?: string): string {
   return `http://127.0.0.1:${getLocalApiPort(profile)}`;
+}
+
+/**
+ * Whether *our* gateway is actually up and serving.
+ *
+ * Deliberately not `isGatewayRunning()`: that returns true as soon as we hold
+ * a ChildProcess handle, and send-message spawns the gateway then issues the
+ * request immediately. A gateway that is seconds away from dying on a bind
+ * conflict still looks alive to it, which is exactly the case this diagnosis
+ * has to get right. The pid file is written once the gateway is genuinely up
+ * and records which HERMES_HOME it belongs to.
+ */
+function ourGatewayIsServing(profile?: string): boolean {
+  try {
+    const home = profileHome(profile);
+    const pidFile = join(home, "gateway.pid");
+    const raw = existsSync(pidFile) ? readFileSync(pidFile, "utf-8") : null;
+    const { pid, homeMatches } = readGatewayPidFile(raw, home);
+    if (pid == null || !homeMatches) return false;
+    return pidIsAliveAs(pid, GATEWAY_IMAGE_PREFIXES);
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -573,7 +597,7 @@ function sendMessageViaApi(
                     ? err.error.code
                     : undefined,
                 isLocal: !isRemoteMode(),
-                ourGatewayRunning: isGatewayRunning(),
+                ourGatewayRunning: ourGatewayIsServing(profile),
                 port: getLocalApiPort(profile),
               }),
             );
