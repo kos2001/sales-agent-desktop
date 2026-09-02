@@ -38,27 +38,31 @@ describe("SidebarNav", () => {
     expect(NAV_GROUPS[0].items.map((i) => i.view)).toEqual([
       "chat",
       "sessions",
-      "kanban",
       "skills",
       "schedules",
     ]);
   });
 
-  it("keeps every screen reachable, including tools and office", () => {
+  it("keeps every screen reachable and ships none the team does not use", () => {
     const wired = NAV_GROUPS.flatMap((g) => g.items.map((i) => i.view));
-    // Previously `tools` and `office` had panes but no nav entry at all.
+    // `tools` had a pane but no nav entry at all before the regrouping.
     expect(wired).toContain("tools");
-    expect(wired).toContain("office");
+    // Office (a 3D visualiser) and Kanban (an agent task queue) were dropped
+    // as screens a sales team has no use for.
+    expect(wired).not.toContain("office");
+    expect(wired).not.toContain("kanban");
+    // The messaging-gateway screen (Telegram/Discord bots) went too. This is
+    // NOT the local API gateway that serves chat — that stays.
+    expect(wired).not.toContain("gateway");
     expect(new Set(wired).size).toBe(wired.length);
-    expect(wired).toHaveLength(14);
+    expect(wired).toHaveLength(11);
   });
 
   it("hides the admin screens until the group is opened", () => {
     renderNav();
     expect(screen.queryByLabelText("navigation.providers")).toBeNull();
-    expect(screen.queryByLabelText("navigation.gateway")).toBeNull();
     // The selling screens are visible from the start.
-    expect(screen.getByLabelText("navigation.kanban")).toBeTruthy();
+    expect(screen.getByLabelText("navigation.sessions")).toBeTruthy();
   });
 
   it("opens the admin group on click and remembers it across mounts", () => {
@@ -92,8 +96,8 @@ describe("SidebarNav", () => {
 
   it("navigates on click", () => {
     const onNavigate = renderNav();
-    fireEvent.click(screen.getByLabelText("navigation.kanban"));
-    expect(onNavigate).toHaveBeenCalledWith("kanban");
+    fireEvent.click(screen.getByLabelText("navigation.sessions"));
+    expect(onNavigate).toHaveBeenCalledWith("sessions");
   });
 
   it("survives localStorage being unavailable", () => {

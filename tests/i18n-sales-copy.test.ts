@@ -28,19 +28,17 @@ describe("sales copy — locales", () => {
   });
 
   it("falls back to en for locales that were left untranslated", () => {
-    // es has no `kanban` namespace at all — the fallback is what keeps the
-    // Pipeline screen from rendering raw key paths.
-    expect(t("kanban.title", "es")).toBe("Pipeline");
     expect(t("navigation.groupAdmin", "ja")).toBe("Admin");
+    // groupSales exists only in en/ko, so es must fall back rather than
+    // render the raw key path.
+    expect(t("navigation.groupSales", "es")).toBe("Selling");
   });
 
   it("labels navigation in sales vocabulary, not agent-plumbing vocabulary", () => {
-    expect(t("navigation.kanban", "en")).toBe("Pipeline");
     expect(t("navigation.skills", "en")).toBe("Playbooks");
     expect(t("navigation.sessions", "en")).toBe("Accounts");
     expect(t("navigation.schedules", "en")).toBe("Reminders");
 
-    expect(t("navigation.kanban", "ko")).toBe("파이프라인");
     expect(t("navigation.skills", "ko")).toBe("플레이북");
   });
 

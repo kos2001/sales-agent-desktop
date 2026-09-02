@@ -7,12 +7,9 @@ import Skills from "../Skills/Skills";
 import Soul from "../Soul/Soul";
 import Memory from "../Memory/Memory";
 import Tools from "../Tools/Tools";
-import Gateway from "../Gateway/Gateway";
-import Office from "../Office/Office";
 import Models from "../Models/Models";
 import Providers from "../Providers/Providers";
 import Schedules from "../Schedules/Schedules";
-import Kanban from "../Kanban/Kanban";
 import SidebarSessions from "./SidebarSessions";
 import SidebarNav, { type View } from "./SidebarNav";
 import RemoteNotice from "../../components/RemoteNotice";
@@ -344,12 +341,6 @@ function Layout({
           </div>
         )}
 
-        {visitedViews.has("office") && (
-          <div style={paneStyle("office")}>
-            <Office profile={activeProfile} visible={view === "office"} />
-          </div>
-        )}
-
         {visitedViews.has("models") && (
           <div style={paneStyle("models")}>
             <Models visible={view === "models"} />
@@ -412,26 +403,6 @@ function Layout({
         {visitedViews.has("schedules") && (
           <div style={paneStyle("schedules")}>
             <Schedules profile={activeProfile} />
-          </div>
-        )}
-
-        {visitedViews.has("kanban") && (
-          <div style={paneStyle("kanban")}>
-            {remoteMode ? (
-              <RemoteNotice feature="Kanban" />
-            ) : (
-              <Kanban profile={activeProfile} visible={view === "kanban"} />
-            )}
-          </div>
-        )}
-
-        {visitedViews.has("gateway") && (
-          <div style={paneStyle("gateway")}>
-            {remoteMode ? (
-              <RemoteNotice feature="Gateway" />
-            ) : (
-              <Gateway profile={activeProfile} />
-            )}
           </div>
         )}
 

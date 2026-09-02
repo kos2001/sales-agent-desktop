@@ -41,7 +41,6 @@ export { Check } from "lucide-react";
 export { Ban } from "lucide-react";
 export { RotateCcw } from "lucide-react";
 export { Loader2 as Spinner } from "lucide-react";
-export { Columns3 as Kanban } from "lucide-react";
 
 // Sales-surface marks. The nav labels are Accounts / Pipeline / Playbooks /
 // Reminders, so the icons have to read the same way — a clock next to
@@ -49,4 +48,3 @@ export { Columns3 as Kanban } from "lucide-react";
 export { Building2 as Accounts } from "lucide-react";
 export { BookOpen as Playbook } from "lucide-react";
 export { BellRing as Reminder } from "lucide-react";
-export { TrendingUp as Pipeline } from "lucide-react";

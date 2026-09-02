@@ -384,13 +384,11 @@ function Providers({
               style={{ width: 140 }}
             >
               <option value="">{t("common.provider")}</option>
-              {PROVIDERS.options
-                .filter((p) => p.value !== "auto")
-                .map((p) => (
-                  <option key={p.value} value={p.value}>
-                    {t(p.label)}
-                  </option>
-                ))}
+              {PROVIDERS.options.map((p) => (
+                <option key={p.value} value={p.value}>
+                  {t(p.label)}
+                </option>
+              ))}
             </select>
             <input
               className="input"
@@ -525,33 +523,37 @@ function Providers({
         );
       })}
 
-      <div className="settings-section">
-        <div className="settings-section-title">
-          {t("providers.oauth.sectionTitle")}
-        </div>
-        <div className="settings-field-hint" style={{ marginBottom: 10 }}>
-          {t("providers.oauth.sectionHint")}
-        </div>
-        <div className="provider-keys-grid">
-          {OAUTH_PROVIDERS.map((p) => (
-            <div key={p.id} className="provider-key-card">
-              <div className="provider-key-card-head">
-                <BrandLogo provider={p.id} size={22} />
-                <span className="provider-key-card-title">{p.name}</span>
+      {/* The app ships one key-based provider, so there is nothing to sign
+          in to. Re-adding entries to OAUTH_PROVIDERS brings this back. */}
+      {OAUTH_PROVIDERS.length > 0 && (
+        <div className="settings-section">
+          <div className="settings-section-title">
+            {t("providers.oauth.sectionTitle")}
+          </div>
+          <div className="settings-field-hint" style={{ marginBottom: 10 }}>
+            {t("providers.oauth.sectionHint")}
+          </div>
+          <div className="provider-keys-grid">
+            {OAUTH_PROVIDERS.map((p) => (
+              <div key={p.id} className="provider-key-card">
+                <div className="provider-key-card-head">
+                  <BrandLogo provider={p.id} size={22} />
+                  <span className="provider-key-card-title">{p.name}</span>
+                </div>
+                <div className="settings-field-hint">{t(p.desc)}</div>
+                <button
+                  className="btn btn-secondary btn-sm oauth-signin-btn"
+                  aria-label={`${t("providers.oauth.signIn")} — ${p.name}`}
+                  onClick={() => setOauthModal(p)}
+                >
+                  <KeyRound size={14} />
+                  {t("providers.oauth.signIn")}
+                </button>
               </div>
-              <div className="settings-field-hint">{t(p.desc)}</div>
-              <button
-                className="btn btn-secondary btn-sm oauth-signin-btn"
-                aria-label={`${t("providers.oauth.signIn")} — ${p.name}`}
-                onClick={() => setOauthModal(p)}
-              >
-                <KeyRound size={14} />
-                {t("providers.oauth.signIn")}
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {oauthModal && (
         <OAuthLoginModal

@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
+  ACTIVE_PROVIDER,
+  OAUTH_PROVIDERS,
   PROVIDERS,
   GATEWAY_PLATFORMS,
   GATEWAY_SECTIONS,
@@ -11,25 +13,32 @@ import {
 // ─── PROVIDERS ──────────────────────────────────────────
 
 describe("PROVIDERS", () => {
-  it("has auto-detect as first option", () => {
+  it("offers exactly one provider, the one this build is configured for", () => {
+    // Narrowed deliberately: a salesperson has no basis for choosing between
+    // twenty inference vendors, and each extra row is a way to misconfigure
+    // the app. Swapping ACTIVE_PROVIDER is how this build moves to an
+    // in-house gateway, and this asserts the list follows it.
+    expect(PROVIDERS.options).toHaveLength(1);
     expect(PROVIDERS.options[0]).toEqual({
-      value: "auto",
-      label: "constants.autoDetect",
+      value: ACTIVE_PROVIDER.value,
+      label: ACTIVE_PROVIDER.label,
     });
+    expect(PROVIDERS.setup).toEqual([ACTIVE_PROVIDER]);
   });
 
-  it("includes all v0.9.0 providers", () => {
-    const values = PROVIDERS.options.map((o) => o.value);
-    expect(values).toContain("openrouter");
-    expect(values).toContain("anthropic");
-    expect(values).toContain("openai");
-    expect(values).toContain("openai-codex");
-    expect(values).toContain("google");
-    expect(values).toContain("xai");
-    expect(values).toContain("nous");
-    expect(values).toContain("qwen");
-    expect(values).toContain("minimax");
-    expect(values).toContain("custom");
+  it("keeps labels for providers it no longer offers", () => {
+    // A profile configured before the narrowing still has e.g. `anthropic` in
+    // its config.yaml. The dropdown no longer offers it, but the chat header
+    // must still render a human name rather than a raw id.
+    for (const legacy of ["anthropic", "openai", "google", "nous", "custom"]) {
+      expect(PROVIDERS.labels[legacy], legacy).toBeTruthy();
+    }
+  });
+
+  it("ships no OAuth sign-in providers", () => {
+    // The single provider is key-based, so the Providers screen hides that
+    // section entirely.
+    expect(OAUTH_PROVIDERS).toEqual([]);
   });
 
   it("has labels for every non-auto provider option", () => {

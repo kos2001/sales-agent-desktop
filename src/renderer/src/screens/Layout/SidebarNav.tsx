@@ -7,13 +7,10 @@ import {
   Playbook,
   Sparkles,
   Brain,
-  Signal,
   Layers,
   KeyRound,
   Reminder,
-  Pipeline,
   Wrench,
-  Building,
   ChevronDown,
 } from "../../assets/icons";
 import type { LucideIcon } from "lucide-react";
@@ -23,7 +20,6 @@ export type View =
   | "chat"
   | "sessions"
   | "agents"
-  | "office"
   | "models"
   | "providers"
   | "skills"
@@ -31,8 +27,6 @@ export type View =
   | "memory"
   | "tools"
   | "schedules"
-  | "kanban"
-  | "gateway"
   | "settings";
 
 type NavItem = { view: View; icon: LucideIcon; labelKey: string };
@@ -52,8 +46,8 @@ type NavGroup = {
  * themselves; "Admin" is the LLM/gateway plumbing an operator sets up once and
  * never reopens, so it ships collapsed.
  *
- * `tools` and `office` had no nav entry at all before this — their panes were
- * mounted but unreachable. They live here now.
+ * `tools` had no nav entry at all before this — its pane was mounted but
+ * unreachable. It lives here now.
  */
 export const NAV_GROUPS: NavGroup[] = [
   {
@@ -62,7 +56,6 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { view: "chat", icon: ChatBubble, labelKey: "navigation.chat" },
       { view: "sessions", icon: Accounts, labelKey: "navigation.sessions" },
-      { view: "kanban", icon: Pipeline, labelKey: "navigation.kanban" },
       { view: "skills", icon: Playbook, labelKey: "navigation.skills" },
       { view: "schedules", icon: Reminder, labelKey: "navigation.schedules" },
     ],
@@ -85,8 +78,6 @@ export const NAV_GROUPS: NavGroup[] = [
       { view: "models", icon: Layers, labelKey: "navigation.models" },
       { view: "providers", icon: KeyRound, labelKey: "navigation.providers" },
       { view: "tools", icon: Wrench, labelKey: "navigation.tools" },
-      { view: "gateway", icon: Signal, labelKey: "navigation.gateway" },
-      { view: "office", icon: Building, labelKey: "navigation.office" },
     ],
   },
 ];
