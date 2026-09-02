@@ -1,7 +1,10 @@
 export default {
+  advancedSection: "고급 설정",
+  advancedHint:
+    "연결, 네트워크, 서버 구성, 로그. 설치할 때 한 번 설정하면 평소에는 열 일이 없습니다.",
   title: "설정",
   sections: {
-    hermesAgent: "Hermes Agent",
+    hermesAgent: "에이전트",
     appearance: "테마",
     privacy: "개인정보",
     credentialPool: "자격 증명 풀",

@@ -1,7 +1,10 @@
 export default {
+  advancedSection: "Advanced",
+  advancedHint:
+    "Connection, network, server configuration and logs. Set up once — you should not need these day to day.",
   title: "Settings",
   sections: {
-    hermesAgent: "Hermes Agent",
+    hermesAgent: "Agent",
     appearance: "Appearance",
     privacy: "Privacy",
     credentialPool: "Credential Pool",

@@ -5,6 +5,8 @@ import { useI18n } from "../../components/useI18n";
 import { APP_LOCALES, type AppLocale } from "../../../../shared/i18n";
 import { Check, ChevronDown, Download, Upload, FileText } from "lucide-react";
 
+export const ADVANCED_OPEN_KEY = "settings-advanced-open";
+
 const LANGUAGE_NATIVE_NAMES: Record<AppLocale, string> = {
   en: "English",
   es: "Español",
@@ -83,6 +85,24 @@ function Settings({ profile }: { profile?: string }): React.JSX.Element {
   const [logFile, setLogFile] = useState("gateway.log");
   const [logPath, setLogPath] = useState("");
   const [logsExpanded, setLogsExpanded] = useState(false);
+  // Everything a salesperson needs is theme, language and backup. Connection
+  // mode, proxies, server config and logs are set up once by whoever installs
+  // this, so they start folded rather than filling the screen. Persisted so
+  // an operator who does live in here is not re-opening it every launch.
+  const [advancedOpen, setAdvancedOpen] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(ADVANCED_OPEN_KEY) === "true";
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(ADVANCED_OPEN_KEY, String(advancedOpen));
+    } catch {
+      // Storage quota / private window — in-session state still works.
+    }
+  }, [advancedOpen]);
 
   // Network settings
   const [forceIpv4, setForceIpv4] = useState(false);
@@ -326,337 +346,6 @@ function Settings({ profile }: { profile?: string }): React.JSX.Element {
 
       <div className="settings-section">
         <div className="settings-section-title">
-          {t("settings.sections.hermesAgent")}
-        </div>
-        <div className="settings-hermes-info">
-          <div className="settings-hermes-row">
-            <div className="settings-hermes-detail">
-              <span className="settings-hermes-label">
-                {t("common.engine")}
-              </span>
-              {hermesVersion === null ? (
-                <span className="skeleton skeleton-sm" />
-              ) : (
-                <span className="settings-hermes-value">
-                  {parsedVersion
-                    ? `v${parsedVersion.version}`
-                    : t("settings.notDetected")}
-                </span>
-              )}
-            </div>
-            <div className="settings-hermes-detail">
-              <span className="settings-hermes-label">
-                {t("common.released")}
-              </span>
-              {hermesVersion === null ? (
-                <span className="skeleton skeleton-sm" />
-              ) : (
-                <span className="settings-hermes-value">
-                  {parsedVersion?.date || "—"}
-                </span>
-              )}
-            </div>
-            <div className="settings-hermes-detail">
-              <span className="settings-hermes-label">
-                {t("common.desktop")}
-              </span>
-              {!appVersion ? (
-                <span className="skeleton skeleton-sm" />
-              ) : (
-                <span className="settings-hermes-value">
-                  {t("settings.version", { version: appVersion })}
-                </span>
-              )}
-            </div>
-            <div className="settings-hermes-detail">
-              <span className="settings-hermes-label">Python</span>
-              {hermesVersion === null ? (
-                <span className="skeleton skeleton-sm" />
-              ) : (
-                <span className="settings-hermes-value">
-                  {parsedVersion?.python || "—"}
-                </span>
-              )}
-            </div>
-            <div className="settings-hermes-detail">
-              <span className="settings-hermes-label">OpenAI SDK</span>
-              {hermesVersion === null ? (
-                <span className="skeleton skeleton-sm" />
-              ) : (
-                <span className="settings-hermes-value">
-                  {parsedVersion?.sdk || "—"}
-                </span>
-              )}
-            </div>
-            <div className="settings-hermes-detail">
-              <span className="settings-hermes-label">{t("common.home")}</span>
-              {!hermesHome ? (
-                <span className="skeleton skeleton-md" />
-              ) : (
-                <span className="settings-hermes-value settings-hermes-path">
-                  {hermesHome}
-                </span>
-              )}
-            </div>
-          </div>
-          {parsedVersion?.updateInfo && (
-            <div className="settings-hermes-update-badge">
-              {parsedVersion.updateInfo}
-            </div>
-          )}
-          <div className="settings-hermes-actions">
-            {parsedVersion?.updateInfo ? (
-              <button
-                className="btn btn-primary "
-                onClick={handleUpdateHermes}
-                disabled={updating}
-              >
-                {updating ? t("settings.updating") : t("settings.updateEngine")}
-              </button>
-            ) : (
-              <button className="btn btn-secondary" disabled>
-                {t("settings.latestVersion")}
-              </button>
-            )}
-            <button
-              className="btn btn-secondary"
-              onClick={handleDoctor}
-              disabled={doctorRunning}
-            >
-              {doctorRunning
-                ? t("settings.runningDiagnosis")
-                : t("settings.runDiagnosis")}
-            </button>
-            <button
-              className="btn btn-secondary"
-              onClick={async () => {
-                setDumpRunning(true);
-                setDumpOutput(null);
-                const output = await window.hermesAPI.runHermesDump();
-                setDumpOutput(output);
-                setDumpRunning(false);
-              }}
-              disabled={dumpRunning}
-            >
-              {dumpRunning ? t("settings.running") : t("settings.debugDump")}
-            </button>
-          </div>
-          {updateResult && (
-            <div
-              className={`settings-hermes-result ${updateResultType || "error"}`}
-            >
-              {updateResult}
-            </div>
-          )}
-          {doctorOutput && (
-            <pre className="settings-hermes-doctor">{doctorOutput}</pre>
-          )}
-          {dumpOutput && (
-            <pre className="settings-hermes-doctor">{dumpOutput}</pre>
-          )}
-        </div>
-      </div>
-
-      <div className="settings-section">
-        <div className="settings-section-title">
-          {t("settings.connectionSection")}
-          {connStatus && (
-            <span className="settings-saved" style={{ marginLeft: 8 }}>
-              {connStatus}
-            </span>
-          )}
-        </div>
-
-        <div className="settings-field">
-          <label className="settings-field-label">
-            {t("settings.connectionMode")}
-          </label>
-          <div className="settings-theme-options">
-            <button
-              className={`settings-theme-option ${connMode === "local" ? "active" : ""}`}
-              onClick={() => {
-                setConnMode("local");
-                if (connLoaded.current) handleSwitchToLocal();
-              }}
-            >
-              {t("settings.modeLocal")}
-            </button>
-            <button
-              className={`settings-theme-option ${connMode === "remote" ? "active" : ""}`}
-              onClick={() => setConnMode("remote")}
-            >
-              {t("settings.modeRemote")}
-            </button>
-            <button
-              className={`settings-theme-option ${connMode === "ssh" ? "active" : ""}`}
-              onClick={() => setConnMode("ssh")}
-            >
-              SSH Tunnel
-            </button>
-          </div>
-          <div className="settings-field-hint">
-            {connMode === "local"
-              ? t("settings.modeLocalHint")
-              : connMode === "ssh"
-                ? "Tunnel to a remote Hermes over SSH — no exposed ports or API keys needed."
-                : t("settings.modeRemoteHint")}
-          </div>
-        </div>
-
-        {connMode === "remote" && (
-          <>
-            <div className="settings-field">
-              <label className="settings-field-label">
-                {t("settings.remoteUrl")}
-              </label>
-              <input
-                className="input"
-                type="url"
-                value={connRemoteUrl}
-                onChange={(e) => setConnRemoteUrl(e.target.value)}
-                placeholder="http://192.168.1.100:8642"
-                onBlur={handleSaveConnection}
-              />
-              <div className="settings-field-hint">
-                {t("settings.remoteUrlHint")}
-              </div>
-            </div>
-            <div className="settings-field">
-              <label className="settings-field-label">
-                {t("settings.remoteApiKey")}
-              </label>
-              <input
-                className="input"
-                type="password"
-                value={connApiKey}
-                onChange={(e) => setConnApiKey(e.target.value)}
-                onFocus={(e) => {
-                  if (connApiKey === connApiKeyMask) {
-                    e.currentTarget.select();
-                  }
-                }}
-                placeholder={t("settings.remoteApiKey")}
-                onBlur={handleSaveConnection}
-              />
-              <div className="settings-field-hint">
-                {t("settings.remoteApiKeyHint")}
-              </div>
-            </div>
-            <div className="settings-hermes-actions">
-              <button
-                className="btn btn-secondary"
-                onClick={handleTestConnection}
-                disabled={connTesting}
-              >
-                {connTesting
-                  ? t("settings.testingConnection")
-                  : t("settings.testConnection")}
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={handleSaveConnection}
-              >
-                {t("settings.save")}
-              </button>
-            </div>
-          </>
-        )}
-
-        {connMode === "ssh" && (
-          <>
-            <div className="settings-field">
-              <label className="settings-field-label">SSH Host</label>
-              <input
-                className="input"
-                type="text"
-                value={sshHost}
-                onChange={(e) => setSshHost(e.target.value)}
-                placeholder="192.168.1.100 or myserver.local"
-              />
-            </div>
-            <div className="settings-field">
-              <label className="settings-field-label">SSH Port</label>
-              <input
-                className="input"
-                type="number"
-                value={sshPort}
-                onChange={(e) => setSshPort(e.target.value)}
-                placeholder="22"
-              />
-            </div>
-            <div className="settings-field">
-              <label className="settings-field-label">Username</label>
-              <input
-                className="input"
-                type="text"
-                value={sshUser}
-                onChange={(e) => setSshUser(e.target.value)}
-                placeholder="hermes"
-              />
-            </div>
-            <div className="settings-field">
-              <label className="settings-field-label">
-                Private Key Path{" "}
-                <span style={{ fontWeight: 400, opacity: 0.6 }}>
-                  (optional, defaults to ~/.ssh/id_rsa)
-                </span>
-              </label>
-              <input
-                className="input"
-                type="text"
-                value={sshKeyPath}
-                onChange={(e) => setSshKeyPath(e.target.value)}
-                placeholder="~/.ssh/id_rsa"
-              />
-            </div>
-            <div className="settings-field">
-              <label className="settings-field-label">
-                Remote Hermes Port{" "}
-                <span style={{ fontWeight: 400, opacity: 0.6 }}>
-                  (default 8642)
-                </span>
-              </label>
-              <input
-                className="input"
-                type="number"
-                value={sshRemotePort}
-                onChange={(e) => setSshRemotePort(e.target.value)}
-                placeholder="8642"
-              />
-              <div className="settings-field-hint">
-                Make sure you can run{" "}
-                <code style={{ fontFamily: "monospace" }}>
-                  ssh {sshUser || "user"}@{sshHost || "host"}
-                </code>{" "}
-                without a password prompt. The first connection trusts the host
-                key and stores it in{" "}
-                <code style={{ fontFamily: "monospace" }}>
-                  ~/.ssh/known_hosts
-                </code>
-                ; SSH will fail closed if that key changes later.
-              </div>
-            </div>
-            <div className="settings-hermes-actions">
-              <button
-                className="btn btn-secondary"
-                onClick={handleTestConnection}
-                disabled={connTesting}
-              >
-                {connTesting ? "Testing SSH…" : "Test SSH Connection"}
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={handleSaveConnection}
-              >
-                {t("settings.save")}
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-
-      <div className="settings-section">
-        <div className="settings-section-title">
           {t("settings.sections.appearance")}
         </div>
         <div className="settings-field">
@@ -688,82 +377,6 @@ function Settings({ profile }: { profile?: string }): React.JSX.Element {
           </div>
         </div>
       </div>
-
-      <div className="settings-section">
-        <div className="settings-section-title">
-          {t("settings.networkSection")}
-          {networkSaved && (
-            <span className="settings-saved" style={{ marginLeft: 8 }}>
-              {t("settings.saved")}
-            </span>
-          )}
-        </div>
-        <div className="settings-field">
-          <label className="settings-field-label">
-            {t("settings.forceIpv4")}
-            <label
-              className="tools-toggle"
-              style={{ marginLeft: 12, verticalAlign: "middle" }}
-            >
-              <input
-                type="checkbox"
-                checked={forceIpv4}
-                onChange={async (e) => {
-                  const val = e.target.checked;
-                  setForceIpv4(val);
-                  await window.hermesAPI.setConfig(
-                    "network.force_ipv4",
-                    val ? "true" : "false",
-                    profile,
-                  );
-                  setNetworkSaved(true);
-                  setTimeout(() => setNetworkSaved(false), 2000);
-                }}
-              />
-              <span className="tools-toggle-track" />
-            </label>
-          </label>
-          <div className="settings-field-hint">
-            {t("settings.forceIpv4Hint")}
-          </div>
-        </div>
-        <div className="settings-field">
-          <label className="settings-field-label">
-            {t("settings.httpProxy")}
-          </label>
-          <input
-            className="input"
-            type="text"
-            value={httpProxy}
-            onChange={(e) => setHttpProxy(e.target.value)}
-            onBlur={async () => {
-              await window.hermesAPI.setConfig(
-                "network.proxy",
-                httpProxy.trim(),
-                profile,
-              );
-              setNetworkSaved(true);
-              setTimeout(() => setNetworkSaved(false), 2000);
-            }}
-            placeholder={t("settings.proxyPlaceholder")}
-          />
-          <div className="settings-field-hint">
-            {t("settings.httpProxyHint")}
-          </div>
-        </div>
-      </div>
-
-      {connMode === "remote" && (
-        <div className="settings-section">
-          <div className="settings-section-title">
-            {t("settings.serverConfigTitle")}
-          </div>
-          <div
-            className="settings-field-hint"
-            dangerouslySetInnerHTML={{ __html: t("settings.serverConfigHint") }}
-          />
-        </div>
-      )}
 
       <div className="settings-section">
         <div className="settings-section-title">
@@ -810,65 +423,507 @@ function Settings({ profile }: { profile?: string }): React.JSX.Element {
         </div>
       </div>
 
-      <div className="settings-section">
-        <div className="settings-section-title">
-          <span
-            style={{ cursor: "pointer" }}
-            onClick={() => {
-              const next = !logsExpanded;
-              setLogsExpanded(next);
-              if (next) loadLogs();
-            }}
-          >
-            <FileText
-              size={14}
-              style={{ marginRight: 6, verticalAlign: "middle" }}
-            />
-            {t("settings.logsSection")} {logsExpanded ? "▾" : "▸"}
-          </span>
-        </div>
-        {logsExpanded && (
-          <div className="settings-field">
-            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-              {["gateway.log", "agent.log", "errors.log"].map((f) => (
-                <button
-                  key={f}
-                  className={`btn btn-sm ${logFile === f ? "btn-primary" : "btn-secondary"}`}
-                  onClick={() => {
-                    setLogFile(f);
-                    window.hermesAPI.readLogs(f, 300).then((r) => {
-                      setLogContent(r.content);
-                      setLogPath(r.path);
-                    });
-                  }}
-                >
-                  {f.replace(".log", "")}
-                </button>
-              ))}
-              <button className="btn btn-sm btn-secondary" onClick={loadLogs}>
-                {t("settings.refresh")}
-              </button>
-            </div>
-            {logPath && (
-              <div className="settings-field-hint" style={{ marginBottom: 4 }}>
-                {logPath}
-              </div>
-            )}
-            <pre
-              className="settings-hermes-doctor"
-              style={{
-                maxHeight: 300,
-                overflow: "auto",
-                fontSize: 11,
-                whiteSpace: "pre-wrap",
-                wordBreak: "break-all",
-              }}
-            >
-              {logContent || t("settings.emptyLog")}
-            </pre>
+      <div className="settings-section settings-advanced">
+        <button
+          type="button"
+          className={`settings-advanced-toggle${advancedOpen ? " is-open" : ""}`}
+          onClick={() => setAdvancedOpen((v) => !v)}
+          aria-expanded={advancedOpen}
+        >
+          <ChevronDown size={14} aria-hidden />
+          {t("settings.advancedSection")}
+        </button>
+        {!advancedOpen && (
+          <div className="settings-field-hint">
+            {t("settings.advancedHint")}
           </div>
         )}
       </div>
+
+      {advancedOpen && (
+        <>
+          <div className="settings-section">
+            <div className="settings-section-title">
+              {t("settings.sections.hermesAgent")}
+            </div>
+            <div className="settings-hermes-info">
+              <div className="settings-hermes-row">
+                <div className="settings-hermes-detail">
+                  <span className="settings-hermes-label">
+                    {t("common.engine")}
+                  </span>
+                  {hermesVersion === null ? (
+                    <span className="skeleton skeleton-sm" />
+                  ) : (
+                    <span className="settings-hermes-value">
+                      {parsedVersion
+                        ? `v${parsedVersion.version}`
+                        : t("settings.notDetected")}
+                    </span>
+                  )}
+                </div>
+                <div className="settings-hermes-detail">
+                  <span className="settings-hermes-label">
+                    {t("common.released")}
+                  </span>
+                  {hermesVersion === null ? (
+                    <span className="skeleton skeleton-sm" />
+                  ) : (
+                    <span className="settings-hermes-value">
+                      {parsedVersion?.date || "—"}
+                    </span>
+                  )}
+                </div>
+                <div className="settings-hermes-detail">
+                  <span className="settings-hermes-label">
+                    {t("common.desktop")}
+                  </span>
+                  {!appVersion ? (
+                    <span className="skeleton skeleton-sm" />
+                  ) : (
+                    <span className="settings-hermes-value">
+                      {t("settings.version", { version: appVersion })}
+                    </span>
+                  )}
+                </div>
+                <div className="settings-hermes-detail">
+                  <span className="settings-hermes-label">Python</span>
+                  {hermesVersion === null ? (
+                    <span className="skeleton skeleton-sm" />
+                  ) : (
+                    <span className="settings-hermes-value">
+                      {parsedVersion?.python || "—"}
+                    </span>
+                  )}
+                </div>
+                <div className="settings-hermes-detail">
+                  <span className="settings-hermes-label">OpenAI SDK</span>
+                  {hermesVersion === null ? (
+                    <span className="skeleton skeleton-sm" />
+                  ) : (
+                    <span className="settings-hermes-value">
+                      {parsedVersion?.sdk || "—"}
+                    </span>
+                  )}
+                </div>
+                <div className="settings-hermes-detail">
+                  <span className="settings-hermes-label">
+                    {t("common.home")}
+                  </span>
+                  {!hermesHome ? (
+                    <span className="skeleton skeleton-md" />
+                  ) : (
+                    <span className="settings-hermes-value settings-hermes-path">
+                      {hermesHome}
+                    </span>
+                  )}
+                </div>
+              </div>
+              {parsedVersion?.updateInfo && (
+                <div className="settings-hermes-update-badge">
+                  {parsedVersion.updateInfo}
+                </div>
+              )}
+              <div className="settings-hermes-actions">
+                {parsedVersion?.updateInfo ? (
+                  <button
+                    className="btn btn-primary "
+                    onClick={handleUpdateHermes}
+                    disabled={updating}
+                  >
+                    {updating
+                      ? t("settings.updating")
+                      : t("settings.updateEngine")}
+                  </button>
+                ) : (
+                  <button className="btn btn-secondary" disabled>
+                    {t("settings.latestVersion")}
+                  </button>
+                )}
+                <button
+                  className="btn btn-secondary"
+                  onClick={handleDoctor}
+                  disabled={doctorRunning}
+                >
+                  {doctorRunning
+                    ? t("settings.runningDiagnosis")
+                    : t("settings.runDiagnosis")}
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={async () => {
+                    setDumpRunning(true);
+                    setDumpOutput(null);
+                    const output = await window.hermesAPI.runHermesDump();
+                    setDumpOutput(output);
+                    setDumpRunning(false);
+                  }}
+                  disabled={dumpRunning}
+                >
+                  {dumpRunning
+                    ? t("settings.running")
+                    : t("settings.debugDump")}
+                </button>
+              </div>
+              {updateResult && (
+                <div
+                  className={`settings-hermes-result ${updateResultType || "error"}`}
+                >
+                  {updateResult}
+                </div>
+              )}
+              {doctorOutput && (
+                <pre className="settings-hermes-doctor">{doctorOutput}</pre>
+              )}
+              {dumpOutput && (
+                <pre className="settings-hermes-doctor">{dumpOutput}</pre>
+              )}
+            </div>
+          </div>
+
+          <div className="settings-section">
+            <div className="settings-section-title">
+              {t("settings.connectionSection")}
+              {connStatus && (
+                <span className="settings-saved" style={{ marginLeft: 8 }}>
+                  {connStatus}
+                </span>
+              )}
+            </div>
+
+            <div className="settings-field">
+              <label className="settings-field-label">
+                {t("settings.connectionMode")}
+              </label>
+              <div className="settings-theme-options">
+                <button
+                  className={`settings-theme-option ${connMode === "local" ? "active" : ""}`}
+                  onClick={() => {
+                    setConnMode("local");
+                    if (connLoaded.current) handleSwitchToLocal();
+                  }}
+                >
+                  {t("settings.modeLocal")}
+                </button>
+                <button
+                  className={`settings-theme-option ${connMode === "remote" ? "active" : ""}`}
+                  onClick={() => setConnMode("remote")}
+                >
+                  {t("settings.modeRemote")}
+                </button>
+                <button
+                  className={`settings-theme-option ${connMode === "ssh" ? "active" : ""}`}
+                  onClick={() => setConnMode("ssh")}
+                >
+                  SSH Tunnel
+                </button>
+              </div>
+              <div className="settings-field-hint">
+                {connMode === "local"
+                  ? t("settings.modeLocalHint")
+                  : connMode === "ssh"
+                    ? "Tunnel to a remote Hermes over SSH — no exposed ports or API keys needed."
+                    : t("settings.modeRemoteHint")}
+              </div>
+            </div>
+
+            {connMode === "remote" && (
+              <>
+                <div className="settings-field">
+                  <label className="settings-field-label">
+                    {t("settings.remoteUrl")}
+                  </label>
+                  <input
+                    className="input"
+                    type="url"
+                    value={connRemoteUrl}
+                    onChange={(e) => setConnRemoteUrl(e.target.value)}
+                    placeholder="http://192.168.1.100:8642"
+                    onBlur={handleSaveConnection}
+                  />
+                  <div className="settings-field-hint">
+                    {t("settings.remoteUrlHint")}
+                  </div>
+                </div>
+                <div className="settings-field">
+                  <label className="settings-field-label">
+                    {t("settings.remoteApiKey")}
+                  </label>
+                  <input
+                    className="input"
+                    type="password"
+                    value={connApiKey}
+                    onChange={(e) => setConnApiKey(e.target.value)}
+                    onFocus={(e) => {
+                      if (connApiKey === connApiKeyMask) {
+                        e.currentTarget.select();
+                      }
+                    }}
+                    placeholder={t("settings.remoteApiKey")}
+                    onBlur={handleSaveConnection}
+                  />
+                  <div className="settings-field-hint">
+                    {t("settings.remoteApiKeyHint")}
+                  </div>
+                </div>
+                <div className="settings-hermes-actions">
+                  <button
+                    className="btn btn-secondary"
+                    onClick={handleTestConnection}
+                    disabled={connTesting}
+                  >
+                    {connTesting
+                      ? t("settings.testingConnection")
+                      : t("settings.testConnection")}
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    onClick={handleSaveConnection}
+                  >
+                    {t("settings.save")}
+                  </button>
+                </div>
+              </>
+            )}
+
+            {connMode === "ssh" && (
+              <>
+                <div className="settings-field">
+                  <label className="settings-field-label">SSH Host</label>
+                  <input
+                    className="input"
+                    type="text"
+                    value={sshHost}
+                    onChange={(e) => setSshHost(e.target.value)}
+                    placeholder="192.168.1.100 or myserver.local"
+                  />
+                </div>
+                <div className="settings-field">
+                  <label className="settings-field-label">SSH Port</label>
+                  <input
+                    className="input"
+                    type="number"
+                    value={sshPort}
+                    onChange={(e) => setSshPort(e.target.value)}
+                    placeholder="22"
+                  />
+                </div>
+                <div className="settings-field">
+                  <label className="settings-field-label">Username</label>
+                  <input
+                    className="input"
+                    type="text"
+                    value={sshUser}
+                    onChange={(e) => setSshUser(e.target.value)}
+                    placeholder="hermes"
+                  />
+                </div>
+                <div className="settings-field">
+                  <label className="settings-field-label">
+                    Private Key Path{" "}
+                    <span style={{ fontWeight: 400, opacity: 0.6 }}>
+                      (optional, defaults to ~/.ssh/id_rsa)
+                    </span>
+                  </label>
+                  <input
+                    className="input"
+                    type="text"
+                    value={sshKeyPath}
+                    onChange={(e) => setSshKeyPath(e.target.value)}
+                    placeholder="~/.ssh/id_rsa"
+                  />
+                </div>
+                <div className="settings-field">
+                  <label className="settings-field-label">
+                    Remote Hermes Port{" "}
+                    <span style={{ fontWeight: 400, opacity: 0.6 }}>
+                      (default 8642)
+                    </span>
+                  </label>
+                  <input
+                    className="input"
+                    type="number"
+                    value={sshRemotePort}
+                    onChange={(e) => setSshRemotePort(e.target.value)}
+                    placeholder="8642"
+                  />
+                  <div className="settings-field-hint">
+                    Make sure you can run{" "}
+                    <code style={{ fontFamily: "monospace" }}>
+                      ssh {sshUser || "user"}@{sshHost || "host"}
+                    </code>{" "}
+                    without a password prompt. The first connection trusts the
+                    host key and stores it in{" "}
+                    <code style={{ fontFamily: "monospace" }}>
+                      ~/.ssh/known_hosts
+                    </code>
+                    ; SSH will fail closed if that key changes later.
+                  </div>
+                </div>
+                <div className="settings-hermes-actions">
+                  <button
+                    className="btn btn-secondary"
+                    onClick={handleTestConnection}
+                    disabled={connTesting}
+                  >
+                    {connTesting ? "Testing SSH…" : "Test SSH Connection"}
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    onClick={handleSaveConnection}
+                  >
+                    {t("settings.save")}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="settings-section">
+            <div className="settings-section-title">
+              {t("settings.networkSection")}
+              {networkSaved && (
+                <span className="settings-saved" style={{ marginLeft: 8 }}>
+                  {t("settings.saved")}
+                </span>
+              )}
+            </div>
+            <div className="settings-field">
+              <label className="settings-field-label">
+                {t("settings.forceIpv4")}
+                <label
+                  className="tools-toggle"
+                  style={{ marginLeft: 12, verticalAlign: "middle" }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={forceIpv4}
+                    onChange={async (e) => {
+                      const val = e.target.checked;
+                      setForceIpv4(val);
+                      await window.hermesAPI.setConfig(
+                        "network.force_ipv4",
+                        val ? "true" : "false",
+                        profile,
+                      );
+                      setNetworkSaved(true);
+                      setTimeout(() => setNetworkSaved(false), 2000);
+                    }}
+                  />
+                  <span className="tools-toggle-track" />
+                </label>
+              </label>
+              <div className="settings-field-hint">
+                {t("settings.forceIpv4Hint")}
+              </div>
+            </div>
+            <div className="settings-field">
+              <label className="settings-field-label">
+                {t("settings.httpProxy")}
+              </label>
+              <input
+                className="input"
+                type="text"
+                value={httpProxy}
+                onChange={(e) => setHttpProxy(e.target.value)}
+                onBlur={async () => {
+                  await window.hermesAPI.setConfig(
+                    "network.proxy",
+                    httpProxy.trim(),
+                    profile,
+                  );
+                  setNetworkSaved(true);
+                  setTimeout(() => setNetworkSaved(false), 2000);
+                }}
+                placeholder={t("settings.proxyPlaceholder")}
+              />
+              <div className="settings-field-hint">
+                {t("settings.httpProxyHint")}
+              </div>
+            </div>
+          </div>
+
+          {connMode === "remote" && (
+            <div className="settings-section">
+              <div className="settings-section-title">
+                {t("settings.serverConfigTitle")}
+              </div>
+              <div
+                className="settings-field-hint"
+                dangerouslySetInnerHTML={{
+                  __html: t("settings.serverConfigHint"),
+                }}
+              />
+            </div>
+          )}
+
+          <div className="settings-section">
+            <div className="settings-section-title">
+              <span
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  const next = !logsExpanded;
+                  setLogsExpanded(next);
+                  if (next) loadLogs();
+                }}
+              >
+                <FileText
+                  size={14}
+                  style={{ marginRight: 6, verticalAlign: "middle" }}
+                />
+                {t("settings.logsSection")} {logsExpanded ? "▾" : "▸"}
+              </span>
+            </div>
+            {logsExpanded && (
+              <div className="settings-field">
+                <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                  {["gateway.log", "agent.log", "errors.log"].map((f) => (
+                    <button
+                      key={f}
+                      className={`btn btn-sm ${logFile === f ? "btn-primary" : "btn-secondary"}`}
+                      onClick={() => {
+                        setLogFile(f);
+                        window.hermesAPI.readLogs(f, 300).then((r) => {
+                          setLogContent(r.content);
+                          setLogPath(r.path);
+                        });
+                      }}
+                    >
+                      {f.replace(".log", "")}
+                    </button>
+                  ))}
+                  <button
+                    className="btn btn-sm btn-secondary"
+                    onClick={loadLogs}
+                  >
+                    {t("settings.refresh")}
+                  </button>
+                </div>
+                {logPath && (
+                  <div
+                    className="settings-field-hint"
+                    style={{ marginBottom: 4 }}
+                  >
+                    {logPath}
+                  </div>
+                )}
+                <pre
+                  className="settings-hermes-doctor"
+                  style={{
+                    maxHeight: 300,
+                    overflow: "auto",
+                    fontSize: 11,
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-all",
+                  }}
+                >
+                  {logContent || t("settings.emptyLog")}
+                </pre>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
