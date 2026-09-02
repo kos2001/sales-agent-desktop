@@ -205,6 +205,19 @@ export const SALES_SKILL_CATEGORIES = [
   "research",
 ] as const;
 
+/**
+ * Individual skills hidden even though their category is allowed.
+ *
+ * The category allowlist above sets the broad shape; this removes specific
+ * tools the team does not use. Kept as a denylist rather than turning
+ * `productivity` into a per-skill allowlist because the surface is now four
+ * vetted categories rather than the whole upstream library — a new
+ * productivity skill appearing is a much smaller surprise than a new
+ * category, and an allowlist here would mean editing this file every time
+ * upstream ships a document tool the team would actually want.
+ */
+export const EXCLUDED_SKILLS = ["notion"] as const;
+
 export const THEME_OPTIONS = [
   { value: "light" as const, label: "constants.themeLight" },
   { value: "dark" as const, label: "constants.themeDark" },

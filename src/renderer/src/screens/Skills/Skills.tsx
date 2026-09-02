@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Search, X, Download, Trash, Refresh } from "../../assets/icons";
 import { AgentMarkdown } from "../../components/AgentMarkdown";
 import { useI18n } from "../../components/useI18n";
-import { SALES_SKILL_CATEGORIES } from "../../constants";
+import { EXCLUDED_SKILLS, SALES_SKILL_CATEGORIES } from "../../constants";
 
 interface InstalledSkill {
   name: string;
@@ -112,10 +112,12 @@ function Skills({ profile }: SkillsProps): React.JSX.Element {
 
   // Everything the Browse tab offers is filtered to the sales allowlist first,
   // so the category pills and the grid can never disagree about what exists.
-  const browsableSkills = bundledSkills.filter((s) =>
-    (SALES_SKILL_CATEGORIES as readonly string[]).includes(
-      s.category.toLowerCase(),
-    ),
+  const browsableSkills = bundledSkills.filter(
+    (s) =>
+      (SALES_SKILL_CATEGORIES as readonly string[]).includes(
+        s.category.toLowerCase(),
+      ) &&
+      !(EXCLUDED_SKILLS as readonly string[]).includes(s.name.toLowerCase()),
   );
 
   const filteredBundled = browsableSkills.filter((s) => {

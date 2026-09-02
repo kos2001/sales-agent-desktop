@@ -232,6 +232,11 @@ describe("Skills — Browse is filtered to sales work", () => {
     expect(screen.queryByText("comfyui")).toBeNull();
     expect(screen.queryByText("openhue")).toBeNull();
     expect(screen.queryByText("github-pr-workflow")).toBeNull();
+    // Excluded by name despite sitting in an allowed category.
+    expect(screen.queryByText("notion")).toBeNull();
+    // Excluded by category.
+    expect(screen.queryByText("youtube-content")).toBeNull();
+    expect(screen.queryByText("apple-reminders")).toBeNull();
   });
 
   it("offers no category pill for a filtered-out category", async () => {
