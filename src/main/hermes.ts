@@ -13,11 +13,17 @@ import {
 } from "./installer";
 import {
   getApiServerKey,
+  getConfigValue,
   getConnectionConfig,
   getCustomRequestHeaders,
   getModelConfig,
   readEnv,
 } from "./config";
+import {
+  DEFAULT_LOCAL_API_PORT,
+  diagnoseGatewayError,
+  resolveLocalApiPort,
+} from "./gateway-diagnosis";
 import {
   getSshTunnelUrl,
   isSshTunnelActive,
@@ -29,7 +35,24 @@ import { readModels } from "./models";
 import { HIDDEN_SUBPROCESS_OPTIONS } from "./process-options";
 import { type Attachment, escapeXmlAttr } from "../shared/attachments";
 
-const LOCAL_API_URL = "http://127.0.0.1:8642";
+/**
+ * The local gateway's port is whatever this profile's config.yaml says, not a
+ * constant. Hardcoding 8642 meant that a user who moved their gateway off the
+ * default — the very fix for a port clash — had an app that still talked to
+ * 8642 and hit whatever else was listening there.
+ */
+export function getLocalApiPort(profile?: string): number {
+  try {
+    return resolveLocalApiPort((key) => getConfigValue(key, profile));
+  } catch {
+    // A malformed or unreadable config.yaml must not make chat unreachable.
+    return DEFAULT_LOCAL_API_PORT;
+  }
+}
+
+function localApiUrl(profile?: string): string {
+  return `http://127.0.0.1:${getLocalApiPort(profile)}`;
+}
 
 /**
  * Normalise a remote-mode URL the user typed into the connection
@@ -51,7 +74,7 @@ export function normaliseRemoteUrl(raw: string): string {
   return url;
 }
 
-export function getApiUrl(): string {
+export function getApiUrl(profile?: string): string {
   const conn = getConnectionConfig();
   if (conn.mode === "ssh") {
     const sshUrl = getSshTunnelUrl();
@@ -61,7 +84,7 @@ export function getApiUrl(): string {
   if (conn.mode === "remote" && conn.remoteUrl) {
     return normaliseRemoteUrl(conn.remoteUrl);
   }
-  return LOCAL_API_URL;
+  return localApiUrl(profile);
 }
 
 export function isRemoteMode(): boolean {
@@ -408,7 +431,7 @@ function sendMessageViaApi(
       messages: [{ role: "user", content: userContent }],
       stream: false,
     });
-    const probeUrl = `${getApiUrl()}/v1/chat/completions`;
+    const probeUrl = `${getApiUrl(profile)}/v1/chat/completions`;
     const probeMod = probeUrl.startsWith("https") ? https : http;
     const probeReq = probeMod.request(
       probeUrl,
@@ -512,7 +535,7 @@ function sendMessageViaApi(
     return false;
   }
 
-  const chatUrl = `${getApiUrl()}/v1/chat/completions`;
+  const chatUrl = `${getApiUrl(profile)}/v1/chat/completions`;
   const requester = chatUrl.startsWith("https") ? https.request : http.request;
   const req = requester(
     chatUrl,
@@ -532,13 +555,30 @@ function sendMessageViaApi(
           errBody += d.toString();
         });
         res.on("end", () => {
+          const status = res.statusCode ?? 0;
           try {
             const err = JSON.parse(errBody);
-            finish(err.error?.message || `API error ${res.statusCode}`);
-          } catch {
+            const upstreamMessage = err.error?.message || `API error ${status}`;
+            // A local gateway rejecting our API_SERVER_KEY almost always means
+            // we are not talking to our own gateway at all — another profile's
+            // gateway owns the port. Relaying the raw text sends the user off
+            // re-pasting the provider key they just entered, which was never
+            // the problem.
             finish(
-              `API server returned ${res.statusCode}: ${errBody.slice(0, 200)}`,
+              diagnoseGatewayError({
+                status,
+                upstreamMessage,
+                code:
+                  typeof err.error?.code === "string"
+                    ? err.error.code
+                    : undefined,
+                isLocal: !isRemoteMode(),
+                ourGatewayRunning: isGatewayRunning(),
+                port: getLocalApiPort(profile),
+              }),
             );
+          } catch {
+            finish(`API server returned ${status}: ${errBody.slice(0, 200)}`);
           }
         });
         return;
