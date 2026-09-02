@@ -81,7 +81,7 @@ describe("sales harness ↔ UI contract", () => {
     }
   });
 
-  it("gives every persona preset non-empty content and the shared conduct rules", async () => {
+  it("gives every persona preset the shared conduct rules and the playbooks", async () => {
     const { SOUL_PRESETS, DEFAULT_SOUL } =
       await import("../src/shared/sales-persona");
     expect(SOUL_PRESETS.map((p) => p.id)).toEqual([
@@ -92,11 +92,35 @@ describe("sales harness ↔ UI contract", () => {
     ]);
     for (const preset of SOUL_PRESETS) {
       expect(preset.content.length).toBeGreaterThan(200);
-      // Every motion inherits the data-handling and no-invented-facts rules.
-      expect(preset.content).toContain("customer-data-handling");
-      expect(preset.content).toContain("Never invent a customer fact");
+      // Every motion inherits the same honesty and data-handling rules.
+      expect(preset.content, preset.id).toContain("없는 사실을 만들지 않는다");
+      expect(preset.content, preset.id).toContain("대신 약속하지 않는다");
     }
     expect(DEFAULT_SOUL).toBe(SOUL_PRESETS[0].content);
     expect(DEFAULT_SOUL).not.toContain("You are Hermes");
+  });
+
+  it("routes every shipped playbook from the persona", async () => {
+    // SOUL.md is what the agent reads on every conversation. A playbook the
+    // persona never names is one the agent has no reason to reach for, so a
+    // newly shipped skill that nothing routes to is a bug.
+    const { SOUL_PRESETS, REFERENCED_PLAYBOOKS } =
+      await import("../src/shared/sales-persona");
+    expect([...REFERENCED_PLAYBOOKS].sort()).toEqual(shippedSkillNames());
+    for (const preset of SOUL_PRESETS) {
+      for (const skill of REFERENCED_PLAYBOOKS) {
+        expect(preset.content, `${preset.id} never names ${skill}`).toContain(
+          skill,
+        );
+      }
+    }
+  });
+
+  it("speaks the language the playbooks are written in", async () => {
+    // The seeded skills are Korean and encode Korean business conventions.
+    // An English persona would have the agent switching register mid-reply.
+    const { DEFAULT_SOUL } = await import("../src/shared/sales-persona");
+    expect(DEFAULT_SOUL).toMatch(/[가-힣]/);
+    expect(DEFAULT_SOUL).toContain("기본 언어는 한국어");
   });
 });
