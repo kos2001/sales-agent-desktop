@@ -117,9 +117,25 @@ export interface GatewayPidInfo {
   homeMatches: boolean;
 }
 
-function sameHome(a: string, b: string): boolean {
+/** Resolves a path to its canonical form (symlinks followed). May throw. */
+export type PathResolver = (path: string) => string;
+
+function sameHome(a: string, b: string, canonicalize?: PathResolver): boolean {
   const norm = (v: string): string => v.trim().replace(/\/+$/, "");
-  return norm(a) === norm(b);
+  const plainA = norm(a);
+  const plainB = norm(b);
+  if (plainA === plainB) return true;
+  if (!canonicalize) return false;
+  // macOS resolves /var to /private/var, so the gateway records one form and
+  // HERMES_HOME carries the other for the very same directory. Comparing the
+  // raw strings would mark our own gateway as a stranger.
+  try {
+    return norm(canonicalize(plainA)) === norm(canonicalize(plainB));
+  } catch {
+    // A path that no longer exists cannot be resolved; the literal comparison
+    // above already said no, and guessing further would be worse.
+    return false;
+  }
 }
 
 /**
@@ -138,6 +154,7 @@ function sameHome(a: string, b: string): boolean {
 export function readGatewayPidFile(
   raw: string | null,
   ourHome: string,
+  canonicalize?: PathResolver,
 ): GatewayPidInfo {
   const absent: GatewayPidInfo = { pid: null, homeMatches: false };
   if (raw == null) return absent;
@@ -157,7 +174,10 @@ export function readGatewayPidFile(
         pid,
         // No hermes_home recorded: an older gateway. Trust it rather than
         // accusing the user of a conflict we cannot actually prove.
-        homeMatches: typeof home === "string" ? sameHome(home, ourHome) : true,
+        homeMatches:
+          typeof home === "string"
+            ? sameHome(home, ourHome, canonicalize)
+            : true,
       };
     } catch {
       return absent;

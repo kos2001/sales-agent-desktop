@@ -1,5 +1,11 @@
 import { ChildProcess, spawn } from "child_process";
-import { existsSync, readFileSync, appendFileSync, unlinkSync } from "fs";
+import {
+  existsSync,
+  readFileSync,
+  appendFileSync,
+  unlinkSync,
+  realpathSync,
+} from "fs";
 import { join } from "path";
 import { homedir } from "os";
 import http from "http";
@@ -70,7 +76,7 @@ function ourGatewayIsServing(profile?: string): boolean {
     const home = profileHome(profile);
     const pidFile = join(home, "gateway.pid");
     const raw = existsSync(pidFile) ? readFileSync(pidFile, "utf-8") : null;
-    const { pid, homeMatches } = readGatewayPidFile(raw, home);
+    const { pid, homeMatches } = readGatewayPidFile(raw, home, realpathSync);
     if (pid == null || !homeMatches) return false;
     return pidIsAliveAs(pid, GATEWAY_IMAGE_PREFIXES);
   } catch {

@@ -217,3 +217,40 @@ describe("readGatewayPidFile", () => {
     }
   });
 });
+
+describe("readGatewayPidFile — path canonicalisation", () => {
+  // macOS resolves /var to /private/var, so the gateway records
+  // "/private/var/folders/.../hermes-fresh.X" while HERMES_HOME is
+  // "/var/folders/.../hermes-fresh.X". Comparing the raw strings marks our
+  // OWN gateway as a stranger and produces the wrong advice.
+  const recorded = "/private/var/folders/l4/T/hermes-fresh.X";
+  const ourHome = "/var/folders/l4/T/hermes-fresh.X";
+  const raw = JSON.stringify({ pid: 241, hermes_home: recorded });
+
+  it("treats /var and /private/var as the same home when told how to resolve", () => {
+    const canonical = (p: string): string =>
+      p.startsWith("/var/") ? `/private${p}` : p;
+    expect(readGatewayPidFile(raw, ourHome, canonical).homeMatches).toBe(true);
+  });
+
+  it("still distinguishes genuinely different homes after resolving", () => {
+    const canonical = (p: string): string =>
+      p.startsWith("/var/") ? `/private${p}` : p;
+    expect(
+      readGatewayPidFile(raw, "/var/folders/l4/T/hermes-fresh.OTHER", canonical)
+        .homeMatches,
+    ).toBe(false);
+  });
+
+  it("falls back to a plain comparison when no resolver is supplied", () => {
+    expect(readGatewayPidFile(raw, recorded).homeMatches).toBe(true);
+  });
+
+  it("survives a resolver that throws on a path that no longer exists", () => {
+    const boom = (): string => {
+      throw new Error("ENOENT");
+    };
+    // Must not crash the diagnosis; falls back to the literal comparison.
+    expect(readGatewayPidFile(raw, recorded, boom).homeMatches).toBe(true);
+  });
+});
