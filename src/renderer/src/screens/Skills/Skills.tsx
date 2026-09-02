@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Search, X, Download, Trash, Refresh } from "../../assets/icons";
 import { AgentMarkdown } from "../../components/AgentMarkdown";
 import { useI18n } from "../../components/useI18n";
+import { SALES_SKILL_CATEGORIES } from "../../constants";
 
 interface InstalledSkill {
   name: string;
@@ -109,7 +110,15 @@ function Skills({ profile }: SkillsProps): React.JSX.Element {
     return true;
   });
 
-  const filteredBundled = bundledSkills.filter((s) => {
+  // Everything the Browse tab offers is filtered to the sales allowlist first,
+  // so the category pills and the grid can never disagree about what exists.
+  const browsableSkills = bundledSkills.filter((s) =>
+    (SALES_SKILL_CATEGORIES as readonly string[]).includes(
+      s.category.toLowerCase(),
+    ),
+  );
+
+  const filteredBundled = browsableSkills.filter((s) => {
     let matches = true;
     if (search) {
       const q = search.toLowerCase();
@@ -136,7 +145,7 @@ function Skills({ profile }: SkillsProps): React.JSX.Element {
 
   // Unique categories for the filter pills, with "sales" pinned first.
   const categories = Array.from(
-    new Set(bundledSkills.map((s) => s.category)),
+    new Set(browsableSkills.map((s) => s.category)),
   ).sort((a, b) => {
     if (a.toLowerCase() === SALES_CATEGORY) return -1;
     if (b.toLowerCase() === SALES_CATEGORY) return 1;
@@ -231,7 +240,7 @@ function Skills({ profile }: SkillsProps): React.JSX.Element {
           className={`skills-tab ${tab === "browse" ? "active" : ""}`}
           onClick={() => setTab("browse")}
         >
-          {t("skills.browseTab")} ({bundledSkills.length})
+          {t("skills.browseTab")} ({browsableSkills.length})
         </button>
       </div>
 

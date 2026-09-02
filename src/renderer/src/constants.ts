@@ -181,6 +181,30 @@ export const LOCAL_PRESETS: LocalPreset[] = [
 
 // ── Theme ───────────────────────────────────────────────
 
+/**
+ * Bundled-skill categories the Playbooks screen will show.
+ *
+ * The upstream set is a general-purpose agent's library — ComfyUI,
+ * TouchDesigner, p5js, python-debugpy, GitHub PR workflows, MLOps, smart-home
+ * lighting, iMessage. Around a hundred skills across sixteen categories, and
+ * almost none of it is sales work. Browsing it is how a salesperson ends up
+ * installing a debugger.
+ *
+ * An allowlist rather than a denylist on purpose: upstream adds categories,
+ * and the failure mode of a denylist is that new unrelated tooling appears in
+ * the product without anyone deciding it should.
+ *
+ * What is kept is the document, mail, meeting and research work a sales team
+ * actually does: docx/xlsx/pptx/pdf, Google Workspace, Notion, inbox triage,
+ * meeting action items, competitor monitoring.
+ */
+export const SALES_SKILL_CATEGORIES = [
+  "email",
+  "note-taking",
+  "productivity",
+  "research",
+] as const;
+
 export const THEME_OPTIONS = [
   { value: "light" as const, label: "constants.themeLight" },
   { value: "dark" as const, label: "constants.themeDark" },
