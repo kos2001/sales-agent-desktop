@@ -18,6 +18,7 @@ import type { ToolsetInfo } from "./tools";
 import type { SavedModel } from "./models";
 import type { MemoryProviderInfo } from "./installer";
 import { t } from "../shared/i18n";
+import { DEFAULT_SOUL } from "../shared/sales-persona";
 import { getAppLocale } from "./locale";
 import { HIDDEN_SUBPROCESS_OPTIONS } from "./process-options";
 
@@ -462,13 +463,6 @@ export async function sshWriteUserProfile(
 }
 
 // ── Soul ─────────────────────────────────────────────────────────────────────
-
-const DEFAULT_SOUL = `You are Hermes, a helpful AI assistant. You are friendly, knowledgeable, and always eager to help.
-
-You communicate clearly and concisely. When asked to perform tasks, you think step-by-step and explain your reasoning. You are honest about your limitations and ask for clarification when needed.
-
-You strive to be helpful while being safe and responsible. You respect the user's privacy and handle sensitive information carefully.
-`;
 
 function remoteSoulPath(profile?: string): string {
   if (profile && profile !== "default")

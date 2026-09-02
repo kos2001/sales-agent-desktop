@@ -1,7 +1,7 @@
 export default {
-  title: "Profiles",
+  title: "Sales Profiles",
   subtitle:
-    "Each profile is an isolated Hermes workspace with its own config, memory, and skills",
+    "An isolated workspace per team, territory, or product line — separate memory, playbooks, and settings",
   newAgent: "New Agent",
   namePlaceholder: "Agent name (e.g. coder)",
   cloneConfig: "Clone config & API keys from default",

@@ -1,6 +1,9 @@
 export default {
-  title: "Skills",
-  subtitle: "Extend your agent with reusable skills and workflows",
+  salesSection: "Sales playbooks",
+  otherSection: "Other skills",
+  title: "Playbooks",
+  subtitle:
+    "Repeatable sales workflows the agent follows — discovery, follow-up, proposals, deal review",
   refresh: "Refresh",
   installedTab: "Installed",
   browseTab: "Browse",
@@ -8,9 +11,9 @@ export default {
   search: "Search skills...",
   all: "All",
   noMatchingInstalled: "No matching skills found",
-  noInstalled: "No skills installed yet",
+  noInstalled: "No playbooks installed yet",
   noInstalledHint:
-    "Browse available skills and install them to extend your agent",
+    "Sales playbooks ship with the app — reinstall or browse to add more",
   noMatchingHint: "Try a different search term",
   noBrowseResults: "No skills found",
   noBrowseResultsHint: "Try a different search term or category filter",

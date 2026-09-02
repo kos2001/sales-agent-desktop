@@ -1,7 +1,7 @@
 export default {
-  title: "Memory",
+  title: "메모리",
   subtitle:
-    "What Hermes remembers about you and your environment across sessions.",
+    "담당 계정과 고객 담당자, 그리고 일하는 방식에 대해 에이전트가 기억하고 있는 내용입니다.",
   sessions: "Sessions",
   messages: "Messages",
   memories: "Memories",

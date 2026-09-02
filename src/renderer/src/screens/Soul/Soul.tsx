@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Refresh } from "../../assets/icons";
 import { useI18n } from "../../components/useI18n";
+import {
+  SOUL_PRESETS,
+  type SoulPreset,
+} from "../../../../shared/sales-persona";
 
 interface SoulProps {
   profile?: string;
@@ -12,6 +16,7 @@ function Soul({ profile }: SoulProps): React.JSX.Element {
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [showReset, setShowReset] = useState(false);
+  const [pendingPreset, setPendingPreset] = useState<SoulPreset | null>(null);
   const loaded = useRef(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -63,6 +68,20 @@ function Soul({ profile }: SoulProps): React.JSX.Element {
     }, 2000);
   }
 
+  function applyPreset(preset: SoulPreset): void {
+    // Same shape as handleReset: suppress the autosave debounce while we swap
+    // the content, write once, then re-arm so the user's own edits save again.
+    loaded.current = false;
+    setContent(preset.content);
+    void window.hermesAPI.writeSoul(preset.content, profile);
+    setPendingPreset(null);
+    setSaved(true);
+    setTimeout(() => {
+      loaded.current = true;
+      setSaved(false);
+    }, 2000);
+  }
+
   if (loading) {
     return (
       <div className="soul-container">
@@ -103,6 +122,47 @@ function Soul({ profile }: SoulProps): React.JSX.Element {
             <button
               className="btn btn-secondary btn-sm"
               onClick={() => setShowReset(false)}
+            >
+              {t("common.cancel")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="soul-presets">
+        <span className="soul-presets-label">{t("soul.presetsLabel")}</span>
+        {SOUL_PRESETS.map((preset) => (
+          <button
+            key={preset.id}
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={() => setPendingPreset(preset)}
+          >
+            {t(`soul.preset${preset.id[0].toUpperCase()}${preset.id.slice(1)}`)}
+          </button>
+        ))}
+        <span className="soul-presets-hint">{t("soul.presetsHint")}</span>
+      </div>
+
+      {pendingPreset && (
+        <div className="soul-reset-confirm">
+          <span>
+            {t("soul.presetConfirm", {
+              preset: t(
+                `soul.preset${pendingPreset.id[0].toUpperCase()}${pendingPreset.id.slice(1)}`,
+              ),
+            })}
+          </span>
+          <div className="soul-reset-actions">
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={() => applyPreset(pendingPreset)}
+            >
+              {t("common.apply")}
+            </button>
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={() => setPendingPreset(null)}
             >
               {t("common.cancel")}
             </button>

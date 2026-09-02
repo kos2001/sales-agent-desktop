@@ -14,59 +14,12 @@ import Providers from "../Providers/Providers";
 import Schedules from "../Schedules/Schedules";
 import Kanban from "../Kanban/Kanban";
 import SidebarSessions from "./SidebarSessions";
+import SidebarNav, { type View } from "./SidebarNav";
 import RemoteNotice from "../../components/RemoteNotice";
 import VerifyWarningBanner from "../../components/VerifyWarningBanner";
 import brandMark from "../../assets/icon.png";
-import {
-  ChatBubble,
-  Clock,
-  Users,
-  Settings as SettingsIcon,
-  Puzzle,
-  Sparkles,
-  Brain,
-  Signal,
-  Layers,
-  KeyRound,
-  Timer,
-  Kanban as KanbanIcon,
-  Download,
-  PanelLeftClose,
-  PanelLeftOpen,
-} from "../../assets/icons";
-import type { LucideIcon } from "lucide-react";
+import { Download, PanelLeftClose, PanelLeftOpen } from "../../assets/icons";
 import { useI18n } from "../../components/useI18n";
-
-type View =
-  | "chat"
-  | "sessions"
-  | "agents"
-  | "office"
-  | "models"
-  | "providers"
-  | "skills"
-  | "soul"
-  | "memory"
-  | "tools"
-  | "schedules"
-  | "kanban"
-  | "gateway"
-  | "settings";
-
-const NAV_ITEMS: { view: View; icon: LucideIcon; labelKey: string }[] = [
-  { view: "chat", icon: ChatBubble, labelKey: "navigation.chat" },
-  { view: "sessions", icon: Clock, labelKey: "navigation.sessions" },
-  { view: "agents", icon: Users, labelKey: "navigation.agents" },
-  { view: "kanban", icon: KanbanIcon, labelKey: "navigation.kanban" },
-  { view: "models", icon: Layers, labelKey: "navigation.models" },
-  { view: "providers", icon: KeyRound, labelKey: "navigation.providers" },
-  { view: "skills", icon: Puzzle, labelKey: "navigation.skills" },
-  { view: "soul", icon: Sparkles, labelKey: "navigation.soul" },
-  { view: "memory", icon: Brain, labelKey: "navigation.memory" },
-  { view: "schedules", icon: Timer, labelKey: "navigation.schedules" },
-  { view: "gateway", icon: Signal, labelKey: "navigation.gateway" },
-  { view: "settings", icon: SettingsIcon, labelKey: "navigation.settings" },
-];
 
 interface LayoutProps {
   verifyWarning?: boolean;
@@ -295,25 +248,7 @@ function Layout({
           </button>
         </div>
 
-        <nav className="sidebar-nav" aria-label="Main navigation">
-          {NAV_ITEMS.map(({ view: v, icon: Icon, labelKey }) => {
-            const isActive = view === v;
-            return (
-              <button
-                type="button"
-                key={v}
-                className={`sidebar-nav-item ${isActive ? "active" : ""}`}
-                aria-current={isActive ? "page" : undefined}
-                data-tooltip={t(labelKey)}
-                aria-label={t(labelKey)}
-                onClick={() => goTo(v)}
-              >
-                <Icon size={16} aria-hidden />
-                <span className="sidebar-nav-item-label">{t(labelKey)}</span>
-              </button>
-            );
-          })}
-        </nav>
+        <SidebarNav view={view} onNavigate={goTo} />
 
         <SidebarSessions
           currentSessionId={currentSessionId}

@@ -1,7 +1,7 @@
 export default {
-  title: "Kanban",
+  title: "Pipeline",
   subtitle:
-    "Durable multi-agent board for tasks the agent can pick up and finish on its own.",
+    "Open deals and the follow-up work behind them. The agent can pick up a card and finish it on its own.",
 
   // Header actions
   refresh: "Refresh",

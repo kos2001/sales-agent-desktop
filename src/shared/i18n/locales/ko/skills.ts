@@ -1,6 +1,9 @@
 export default {
-  title: "Skills",
-  subtitle: "Extend your agent with reusable skills and workflows",
+  salesSection: "영업 플레이북",
+  otherSection: "기타 스킬",
+  title: "플레이북",
+  subtitle:
+    "에이전트가 따르는 반복 가능한 영업 절차입니다 — 디스커버리, 팔로업, 제안, 딜 리뷰",
   refresh: "Refresh",
   installedTab: "Installed",
   browseTab: "Browse",
@@ -8,9 +11,9 @@ export default {
   search: "Search skills...",
   all: "All",
   noMatchingInstalled: "No matching skills found",
-  noInstalled: "No skills installed yet",
+  noInstalled: "설치된 플레이북이 없습니다",
   noInstalledHint:
-    "Browse available skills and install them to extend your agent",
+    "영업 플레이북은 앱에 기본 포함됩니다. 재설치하거나 둘러보기에서 추가하세요",
   noMatchingHint: "Try a different search term",
   noBrowseResults: "No skills found",
   noBrowseResultsHint: "Try a different search term or category filter",

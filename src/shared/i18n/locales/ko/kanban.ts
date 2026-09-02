@@ -1,7 +1,7 @@
 export default {
-  title: "Kanban",
+  title: "파이프라인",
   subtitle:
-    "Durable multi-agent board for tasks the agent can pick up and finish on its own.",
+    "진행 중인 딜과 그에 딸린 후속 작업입니다. 에이전트가 카드를 집어 스스로 끝낼 수 있습니다.",
 
   // Header actions
   refresh: "Refresh",

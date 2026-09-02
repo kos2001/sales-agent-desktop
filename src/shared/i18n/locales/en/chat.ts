@@ -17,14 +17,27 @@ export default {
     badge: "PII protected",
     agentAria: "Reply generated with PII protection",
   },
-  emptyTitle: "How can I help you today?",
-  emptyHint: "Ask me to write code, answer questions, search the web, and more",
-  suggestionSearch: "Search the web",
-  suggestionReminder: "Set a reminder",
-  suggestionEmail: "Summarize emails",
-  suggestionScript: "Write a script",
-  suggestionSchedule: "Schedule a cron job",
-  suggestionAnalyze: "Analyze data",
+  emptyTitle: "What are we working on?",
+  emptyHint:
+    "Turn meeting notes into a record, draft the follow-up, review a deal, or check the pipeline",
+  suggestionDiscovery: "Write up discovery notes",
+  suggestionDiscoveryPrompt:
+    "Turn my rough notes from the meeting that just finished into structured discovery notes.",
+  suggestionFollowup: "Draft a follow-up email",
+  suggestionFollowupPrompt:
+    "Draft the follow-up email for yesterday's meeting, fixing the next steps we agreed on.",
+  suggestionAccountBrief: "Build an account brief",
+  suggestionAccountBriefPrompt:
+    "Build an account brief for this customer before my next meeting with them.",
+  suggestionDealRisk: "Review deal risk",
+  suggestionDealRiskPrompt:
+    "Review the risk on my open deals this quarter and tell me what is unverified.",
+  suggestionProposal: "Outline a proposal",
+  suggestionProposalPrompt:
+    "Outline a proposal using only what we actually confirmed in discovery.",
+  suggestionPipeline: "Check pipeline hygiene",
+  suggestionPipelinePrompt:
+    "Go through my pipeline and find deals that have stalled or are missing a next action.",
   approve: "Approve",
   deny: "Deny",
   thinking: "Thinking",

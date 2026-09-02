@@ -16,14 +16,27 @@ export default {
     badge: "개인정보 보호됨",
     agentAria: "개인정보 보호 상태로 생성된 응답",
   },
-  emptyTitle: "How can I help you today?",
-  emptyHint: "Ask me to write code, answer questions, search the web, and more",
-  suggestionSearch: "Search the web",
-  suggestionReminder: "Set a reminder",
-  suggestionEmail: "Summarize emails",
-  suggestionScript: "Write a script",
-  suggestionSchedule: "Schedule a cron job",
-  suggestionAnalyze: "Analyze data",
+  emptyTitle: "어떤 일을 도와드릴까요?",
+  emptyHint:
+    "미팅 메모 정리, 팔로업 메일 초안, 딜 리스크 점검, 파이프라인 확인까지 맡기실 수 있습니다",
+  suggestionDiscovery: "디스커버리 노트 정리",
+  suggestionDiscoveryPrompt:
+    "방금 끝난 미팅에서 받아적은 메모를 디스커버리 노트로 정리해줘.",
+  suggestionFollowup: "팔로업 메일 초안",
+  suggestionFollowupPrompt:
+    "어제 미팅 내용을 기준으로, 합의된 다음 액션을 고정하는 팔로업 메일 초안을 써줘.",
+  suggestionAccountBrief: "계정 브리프 작성",
+  suggestionAccountBriefPrompt:
+    "다음 미팅 전에 이 고객사의 계정 브리프를 한 장으로 만들어줘.",
+  suggestionDealRisk: "딜 리스크 점검",
+  suggestionDealRiskPrompt:
+    "이번 분기 진행 중인 딜들의 리스크를 점검하고, 아직 확인되지 않은 부분을 짚어줘.",
+  suggestionProposal: "제안서 골격 잡기",
+  suggestionProposalPrompt:
+    "디스커버리에서 실제로 확인된 내용만으로 제안서 목차를 잡아줘.",
+  suggestionPipeline: "파이프라인 점검",
+  suggestionPipelinePrompt:
+    "파이프라인 전체를 훑어서 정체된 딜과 다음 액션이 빠진 딜을 찾아줘.",
   approve: "Approve",
   deny: "Deny",
   thinking: "Thinking",

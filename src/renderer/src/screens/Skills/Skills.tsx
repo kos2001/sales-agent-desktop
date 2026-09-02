@@ -24,6 +24,9 @@ interface SkillsProps {
 
 type Tab = "installed" | "browse";
 
+/** Category the bundled sales playbooks ship under (see sales-harness.ts). */
+const SALES_CATEGORY = "sales";
+
 function Skills({ profile }: SkillsProps): React.JSX.Element {
   const { t } = useI18n();
   const [tab, setTab] = useState<Tab>("installed");
@@ -121,10 +124,24 @@ function Skills({ profile }: SkillsProps): React.JSX.Element {
     return matches;
   });
 
-  // Get unique categories for filter pills
+  // The seeded sales playbooks are the point of this screen, so they get their
+  // own section above everything else rather than sorting in among the general
+  // skills a user may have installed.
+  const salesInstalled = filteredInstalled.filter(
+    (s) => s.category.toLowerCase() === SALES_CATEGORY,
+  );
+  const otherInstalled = filteredInstalled.filter(
+    (s) => s.category.toLowerCase() !== SALES_CATEGORY,
+  );
+
+  // Unique categories for the filter pills, with "sales" pinned first.
   const categories = Array.from(
     new Set(bundledSkills.map((s) => s.category)),
-  ).sort();
+  ).sort((a, b) => {
+    if (a.toLowerCase() === SALES_CATEGORY) return -1;
+    if (b.toLowerCase() === SALES_CATEGORY) return 1;
+    return a.localeCompare(b);
+  });
 
   if (loading) {
     return (
@@ -285,23 +302,62 @@ function Skills({ profile }: SkillsProps): React.JSX.Element {
             </p>
           </div>
         ) : (
-          <div className="skills-grid">
-            {filteredInstalled.map((skill) => (
-              <button
-                key={`${skill.category}/${skill.name}`}
-                className="skills-card"
-                onClick={() => handleViewDetail(skill)}
-              >
-                <div className="skills-card-category">{skill.category}</div>
-                <div className="skills-card-name">{skill.name}</div>
-                {skill.description && (
-                  <div className="skills-card-description">
-                    {skill.description}
-                  </div>
+          <>
+            {salesInstalled.length > 0 && (
+              <>
+                <h3 className="skills-section-title">
+                  {t("skills.salesSection")}
+                </h3>
+                <div className="skills-grid">
+                  {salesInstalled.map((skill) => (
+                    <button
+                      key={`${skill.category}/${skill.name}`}
+                      className="skills-card"
+                      onClick={() => handleViewDetail(skill)}
+                    >
+                      <div className="skills-card-category">
+                        {skill.category}
+                      </div>
+                      <div className="skills-card-name">{skill.name}</div>
+                      {skill.description && (
+                        <div className="skills-card-description">
+                          {skill.description}
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+            {otherInstalled.length > 0 && (
+              <>
+                {salesInstalled.length > 0 && (
+                  <h3 className="skills-section-title">
+                    {t("skills.otherSection")}
+                  </h3>
                 )}
-              </button>
-            ))}
-          </div>
+                <div className="skills-grid">
+                  {otherInstalled.map((skill) => (
+                    <button
+                      key={`${skill.category}/${skill.name}`}
+                      className="skills-card"
+                      onClick={() => handleViewDetail(skill)}
+                    >
+                      <div className="skills-card-category">
+                        {skill.category}
+                      </div>
+                      <div className="skills-card-name">{skill.name}</div>
+                      {skill.description && (
+                        <div className="skills-card-description">
+                          {skill.description}
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </>
         )
       ) : filteredBundled.length === 0 ? (
         <div className="skills-empty">

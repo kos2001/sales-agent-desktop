@@ -1,4 +1,5 @@
 export default {
+  apply: "Apply",
   appName: "Hermes Agent",
   continue: "Continue",
   cancel: "Cancel",
