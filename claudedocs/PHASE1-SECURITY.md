@@ -32,14 +32,48 @@ npm run lint && npm run typecheck && npm run test
 - `src/renderer/src/lib/privacy.test.ts` — 기본값이 조용히 뒤집히는 것을 막는 정책 단언.
 - `src/renderer/src/utils/analytics.test.ts` — 신규 설치는 수집 꺼짐, 명시 동의 후에만 켜짐, 철회 가능.
 
-## 검증 상태 — 중요
+## 검증 상태 — 완료
 
-- ✅ 수정한 `.ts` 파일 9개 전부 Node 타입 스트리핑 구문 검사 통과.
-- ✅ 추가/변경 라인 전부 80자 이내(Prettier 폭).
-- ❌ **`lint` / `typecheck` / `test`는 아직 실행하지 못했습니다.** 이 저장소의 `node_modules`가 프로덕션 전용 설치라 vitest·typescript가 없었고, 개발 의존성을 설치할 저장소가 아직 없었습니다.
-- `Chat.tsx`는 JSX라 구문 검사 대상에서 빠졌습니다. 변경은 import 1줄 + 인자 2곳으로 작지만 미검증입니다.
+`npm install`(923 패키지, `better-sqlite3` 네이티브 빌드 성공) 후 실행한 결과:
 
-새 저장소가 준비되면 `npm install` 후 위 3종 게이트를 돌리는 것이 다음 작업입니다.
+| 게이트 | 결과 |
+|---|---|
+| `npm run typecheck` | ✅ 통과 (node + web) |
+| `npm run test` | ✅ 68개 파일, **741 통과 / 7 skip** |
+| `npx eslint <수정 파일 10개>` | ✅ **0 errors** (경고 2868건은 아래 참고) |
+| `npx electron-vite build` | ✅ 성공 |
+
+신규 테스트 4개 파일은 **13 통과 / 4 skip**으로 실제 실행이 확인됐습니다.
+
+### 알아둘 것
+
+**`typecheck:web`은 `src/renderer/src/routeTree.gen.ts`가 있어야 통과합니다.** 이 파일은
+gitignore 대상이고 TanStack 라우터 플러그인이 빌드/dev 때 생성합니다. 새로 클론한 트리에서
+`npm run typecheck`를 먼저 돌리면 라우트 관련 오류 7건이 나오는데, 이는 실제 결함이 아니라
+생성 파일 부재입니다. **`npx electron-vite build`를 한 번 돌린 뒤 typecheck하세요.**
+(`npm run build`는 typecheck를 먼저 실행하므로 이 상황에서는 순환에 걸립니다.)
+
+**eslint 경고 2868건은 전부 `Delete ␍`(CRLF)이며 upstream에서 물려받은 것입니다.**
+upstream 블롭 자체가 CRLF로 커밋돼 있습니다(`.gitattributes`의 `* text=auto`에도 불구하고).
+이 패치가 만든 것이 아니고, 경고라 게이트를 막지 않습니다. 별도 정리 커밋 대상입니다.
+
+**S4의 파일 권한 단언은 Windows에서 skip됩니다.** `tests/private-file-modes.test.ts`의
+0600/0700 검증 4건은 POSIX 전용이라 Windows에서는 실행되지 않습니다.
+**0600 로직이 실제로 검증되려면 macOS/Linux에서 한 번 돌아야 합니다** — CI에 POSIX 러너가
+있다면 거기서 확인하세요. 정작 이 결함이 실제 위험인 플랫폼이 그쪽입니다.
+
+## 베이스라인 커밋에 대한 정정
+
+베이스라인 커밋(`e19ad51`)은 upstream `a556639`와 **523개 파일이 바이트 단위로 동일**하지만,
+완전히 동일하지는 않습니다. upstream의 심볼릭 링크 2개가 Windows에서 추출되며 일반 파일로
+펼쳐졌습니다:
+
+- `.claude/skills/typescript-expert` → `../../.agents/skills/typescript-expert` (파일 4개로 전개)
+- `.claude/skills/electron-pro` → `../../.agents/skills/electron-pro` (파일 2개로 전개)
+
+가리키던 대상은 `.agents/skills/` 아래 이미 저장소에 있으므로 내용 손실은 없고, 에이전트
+도구 정의 6개 파일이 중복될 뿐입니다. Windows는 `core.symlinks=false`라 링크를 복원하면
+작업 트리가 영구적으로 dirty 상태가 되어, 일반 파일로 두는 쪽을 택했습니다.
 
 ## 이번 패치에 없는 것
 
