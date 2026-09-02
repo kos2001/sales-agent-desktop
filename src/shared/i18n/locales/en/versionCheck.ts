@@ -1,0 +1,21 @@
+export default {
+  title: "Check for updates",
+  subtitle:
+    "Before you continue, make sure your Hermes engine and desktop app are up to date.",
+  componentColumn: "Component",
+  currentColumn: "Installed",
+  latestColumn: "Latest",
+  statusColumn: "Status",
+  engineName: "Hermes Agent engine",
+  desktopName: "Hermes Desktop",
+  upToDate: "Up to date",
+  updateAvailable: "Update available",
+  unknown: "Unknown",
+  updateEngine: "Update engine",
+  updatingEngine: "Updating engine…",
+  downloadDesktop: "Download & install",
+  downloadingDesktop: "Downloading…",
+  restartToUpdate: "Restart to update",
+  skip: "Skip and continue",
+  engineUpdateFailed: "Engine update failed",
+} as const;

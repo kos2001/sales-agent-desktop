@@ -1,0 +1,21 @@
+export default {
+  title: "업데이트 확인",
+  subtitle:
+    "계속하기 전에 Hermes 엔진과 데스크톱 앱이 최신 상태인지 확인하세요.",
+  componentColumn: "구성 요소",
+  currentColumn: "설치됨",
+  latestColumn: "최신",
+  statusColumn: "상태",
+  engineName: "Hermes Agent 엔진",
+  desktopName: "Hermes Desktop",
+  upToDate: "최신 상태",
+  updateAvailable: "업데이트 가능",
+  unknown: "알 수 없음",
+  updateEngine: "엔진 업데이트",
+  updatingEngine: "엔진 업데이트 중…",
+  downloadDesktop: "다운로드 및 설치",
+  downloadingDesktop: "다운로드 중…",
+  restartToUpdate: "재시작하여 업데이트",
+  skip: "건너뛰고 계속",
+  engineUpdateFailed: "엔진 업데이트 실패",
+} as const;

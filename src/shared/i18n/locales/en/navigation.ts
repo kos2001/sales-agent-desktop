@@ -1,0 +1,18 @@
+export default {
+  chat: "Chat",
+  sessions: "Sessions",
+  agents: "Profiles",
+  office: "Office",
+  models: "Models",
+  providers: "Providers",
+  skills: "Skills",
+  soul: "Persona",
+  memory: "Memory",
+  tools: "Tools",
+  schedules: "Schedules",
+  kanban: "Kanban",
+  gateway: "Gateway",
+  settings: "Settings",
+  recent: "Recent",
+  seeAll: "See all",
+} as const;

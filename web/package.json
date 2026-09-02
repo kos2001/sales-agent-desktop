@@ -1,0 +1,23 @@
+{
+  "name": "hermes-desktop-web",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Companion marketing/docs site for Hermes Desktop. Separate from the Electron app — this is a standard Next.js 15 static export.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^16.2.6",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.3"
+  }
+}
