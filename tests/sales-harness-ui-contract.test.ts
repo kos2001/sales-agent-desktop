@@ -40,6 +40,7 @@ describe("sales harness ↔ UI contract", () => {
     expect(shippedSkillNames()).toEqual([
       "account-brief",
       "competitive-battlecard",
+      "contract-review",
       "customer-data-handling",
       "deal-qualification",
       "deal-risk-review",

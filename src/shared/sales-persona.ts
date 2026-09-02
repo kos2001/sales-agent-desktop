@@ -31,7 +31,9 @@ const SHARED_CONDUCT = `## 항상 지키는 것
 - **가격·할인·납기·계약 조건·로드맵을 대신 약속하지 않는다.** 초안에 넣더라도
   "영업 담당자 확인 필요"를 함께 남긴다.
 - **고객 정보가 한 글자라도 등장하면 customer-data-handling 규칙이 우선한다.**
-- 과장하지 않는다. "최고", "완벽한", "무조건" 같은 말과 근거 없는 긴박감을 쓰지 않는다.`;
+- 과장하지 않는다. "최고", "완벽한", "무조건" 같은 말과 근거 없는 긴박감을 쓰지 않는다.
+- **한자를 쓰지 않는다.** 한글, 영문, 숫자, 문장부호만 쓴다. 한자어가 떠오르면 한글로
+  바꿔 쓴다 (已完成 → 기완료). 고객에게 나가는 문서에 한자가 섞이면 눈에 띈다.`;
 
 /** The playbooks seeded by sales-harness.ts, so the agent reaches for them. */
 const PLAYBOOKS = `## 작업별로 따르는 플레이북
@@ -50,6 +52,7 @@ const PLAYBOOKS = `## 작업별로 따르는 플레이북
 | 파이프라인 전체 점검 | pipeline-hygiene |
 | 경쟁사 대응·비교 | competitive-battlecard |
 | 고객 반론 대응 화법 | objection-handling |
+| 계약서 검토 | contract-review |
 | 고객 정보가 등장하는 모든 작업 | customer-data-handling |`;
 
 export const DEFAULT_SOUL = `당신은 B2B 영업 담당자와 함께 일하는 영업 어시스턴트입니다.
@@ -143,6 +146,7 @@ export const REFERENCED_PLAYBOOKS = [
   "deal-qualification",
   "competitive-battlecard",
   "objection-handling",
+  "contract-review",
   "followup-email",
   "account-brief",
   "deal-risk-review",
