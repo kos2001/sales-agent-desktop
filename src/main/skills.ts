@@ -1,6 +1,6 @@
 import { execFileSync } from "child_process";
 import { existsSync, readdirSync, readFileSync, statSync } from "fs";
-import { join } from "path";
+import { isAbsolute, join, relative, resolve } from "path";
 import { homedir } from "os";
 import {
   HERMES_HOME,
@@ -120,8 +120,40 @@ export function listInstalledSkills(profile?: string): InstalledSkill[] {
 /**
  * Get the full content of a SKILL.md for the detail view.
  */
+/**
+ * Roots a skill may legitimately live under: any profile's `skills/`
+ * directory plus the bundled set shipped inside the hermes repo. Mirrors
+ * where `listInstalledSkills` (profile home) and the bundled-skill reader
+ * (HERMES_REPO) actually enumerate from.
+ */
+function skillRoots(): string[] {
+  return [
+    resolve(join(HERMES_HOME, "skills")),
+    resolve(join(HERMES_HOME, "profiles")),
+    resolve(join(HERMES_REPO, "skills")),
+  ];
+}
+
+/**
+ * True when `candidate` sits inside `root`. Compares resolved paths and
+ * requires a separator at the boundary, so `/a/skills-evil` does not pass
+ * as being inside `/a/skills`.
+ */
+function isInside(root: string, candidate: string): boolean {
+  const rel = relative(root, candidate);
+  return rel !== "" && !rel.startsWith("..") && !isAbsolute(rel);
+}
+
 export function getSkillContent(skillPath: string): string {
-  const skillFile = join(skillPath, "SKILL.md");
+  // `skillPath` arrives straight from the renderer. Without this check the
+  // handler is a read primitive for any `<attacker-path>/SKILL.md` on disk.
+  // Every other path-taking handler in the app is already constrained (see
+  // `readLogs`' filename allowlist); this one was the exception.
+  if (typeof skillPath !== "string" || !skillPath) return "";
+  const resolved = resolve(skillPath);
+  if (!skillRoots().some((root) => isInside(root, resolved))) return "";
+
+  const skillFile = join(resolved, "SKILL.md");
   if (!existsSync(skillFile)) return "";
 
   try {

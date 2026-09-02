@@ -1,10 +1,11 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import { readFileSync, existsSync, mkdirSync } from "fs";
 import { randomBytes } from "crypto";
 import { join } from "path";
 import { HERMES_HOME, expectedEnvKeyForModel } from "./installer";
 import {
   escapeRegex,
   getActiveProfileNameSync,
+  PRIVATE_DIR_MODE,
   profileHome,
   profilePaths,
   safeWriteFile,
@@ -58,9 +59,11 @@ export function readDesktopConfig(): Record<string, unknown> {
 
 export function writeDesktopConfig(data: Record<string, unknown>): void {
   if (!existsSync(HERMES_HOME)) {
-    mkdirSync(HERMES_HOME, { recursive: true });
+    mkdirSync(HERMES_HOME, { recursive: true, mode: PRIVATE_DIR_MODE });
   }
-  writeFileSync(desktopConfigFile(), JSON.stringify(data, null, 2), "utf-8");
+  // desktop.json holds `remoteApiKey`, so it gets the same owner-only
+  // treatment as .env and auth.json rather than the default 0644.
+  safeWriteFile(desktopConfigFile(), JSON.stringify(data, null, 2));
 }
 
 export function getConnectionConfig(): ConnectionConfig {

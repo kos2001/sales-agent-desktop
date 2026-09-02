@@ -1,6 +1,12 @@
 import { execFileSync } from "child_process";
 import { join, dirname } from "path";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+} from "fs";
 import { HERMES_HOME } from "./installer";
 
 const PROFILE_NAME_RE = /^[a-z0-9_][a-z0-9_-]{0,63}$/;
@@ -184,12 +190,49 @@ export function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/** Owner-only file mode. Everything this app writes under HERMES_HOME is
+ *  user-private: `.env` (provider API keys), `auth.json` (OAuth access and
+ *  refresh tokens), `config.yaml`, `desktop.json` (remote gateway key). */
+export const PRIVATE_FILE_MODE = 0o600;
+/** Owner-only directory mode, so a listing can't leak file names either. */
+export const PRIVATE_DIR_MODE = 0o700;
+
+/**
+ * Restrict an existing path to owner-only access, best-effort.
+ *
+ * `writeFileSync`'s `mode` option applies only when the file is *created*,
+ * so rewriting a file that already exists keeps whatever mode it had —
+ * including the 0644 that every pre-fix install wrote. Calling chmod after
+ * the write is what actually migrates those files.
+ *
+ * On Windows this only clears/sets the read-only bit (Node maps nothing
+ * else), which is harmless — NTFS ACL inheritance already keeps these
+ * files out of other users' reach there.
+ */
+export function restrictPath(path: string, mode: number): void {
+  try {
+    chmodSync(path, mode);
+  } catch {
+    // Best-effort: a filesystem that doesn't support modes (or a file we
+    // don't own) must not break the write that just succeeded.
+  }
+}
+
 /**
  * Write a file, creating parent directories if they don't exist.
  * Prevents ENOENT crashes when ~/.hermes has been deleted or doesn't exist yet.
+ *
+ * Writes owner-only (0600). Callers pass secrets through here — see
+ * `PRIVATE_FILE_MODE`.
  */
 export function safeWriteFile(filePath: string, content: string): void {
   const dir = dirname(filePath);
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  writeFileSync(filePath, content, "utf-8");
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true, mode: PRIVATE_DIR_MODE });
+  }
+  writeFileSync(filePath, content, {
+    encoding: "utf-8",
+    mode: PRIVATE_FILE_MODE,
+  });
+  restrictPath(filePath, PRIVATE_FILE_MODE);
 }

@@ -7,12 +7,17 @@ const POSTHOG_HOST =
 const ANALYTICS_CONSENT_KEY = "hermes-analytics-enabled";
 
 function isAnalyticsEnabled(): boolean {
-  // Default to true for official builds (key present), false otherwise
-  const hasKey = POSTHOG_KEY.length > 0;
+  // Opt-in, not opt-out. This app handles customer records, so usage
+  // telemetry only leaves the machine after the user has said yes.
+  //
+  // The previous default was "enabled when VITE_POSTHOG_KEY is baked into
+  // the build". That was already the wrong posture here, and it became a
+  // real defect when the Settings privacy section (the only control that
+  // called `setAnalyticsConsent`) was removed: collection kept running
+  // with no in-app way to stop it. Absent an explicit stored "true", stay
+  // off.
   try {
-    const stored = localStorage.getItem(ANALYTICS_CONSENT_KEY);
-    if (stored === null) return hasKey; // First run: enabled if key exists
-    return stored === "true";
+    return localStorage.getItem(ANALYTICS_CONSENT_KEY) === "true";
   } catch {
     return false;
   }

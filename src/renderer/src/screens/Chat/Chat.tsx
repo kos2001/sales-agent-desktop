@@ -14,6 +14,7 @@ import { useI18n } from "../../components/useI18n";
 import { ShieldCheck } from "../../assets/icons";
 import { buildChatTranscript } from "./transcriptUtils";
 import { sessionLabel } from "../../lib/sessionLabel";
+import { PROTECT_DEFAULT } from "../../lib/privacy";
 import type { ChatMessage, UsageState } from "./types";
 
 export type { ChatMessage } from "./types";
@@ -64,9 +65,10 @@ function Chat({
   const [contextFolder, setContextFolder] = useState<string | null>(null);
   // Per-conversation personal-info protection (approach B). When on, the main
   // process de-identifies the outgoing message before dispatch and
-  // re-identifies the response locally. Reset on new chat (below). The
-  // selection toggle + indicators are wired on top of this state.
-  const [protect, setProtect] = useState(false);
+  // re-identifies the response locally. Reset to the default on new chat
+  // (below). The selection toggle + indicators are wired on top of this state.
+  // See `lib/privacy.ts` for why the default is on.
+  const [protect, setProtect] = useState(PROTECT_DEFAULT);
   // Live mirror of `protect` so the once-registered chat IPC listeners can
   // tag a streamed agent bubble as protected without re-registering.
   const protectRef = useRef(protect);
@@ -126,7 +128,7 @@ function Chat({
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setContextFolder(null);
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setProtect(false);
+      setProtect(PROTECT_DEFAULT);
     }
   }, [messages]);
 
