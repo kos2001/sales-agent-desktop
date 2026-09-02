@@ -36,13 +36,16 @@ function suggestionSkills(): string[] {
 }
 
 describe("sales harness ↔ UI contract", () => {
-  it("ships the seven sales playbooks the app is built around", () => {
+  it("ships the sales playbooks the app is built around", () => {
     expect(shippedSkillNames()).toEqual([
       "account-brief",
+      "competitive-battlecard",
       "customer-data-handling",
+      "deal-qualification",
       "deal-risk-review",
       "discovery-notes",
       "followup-email",
+      "objection-handling",
       "pipeline-hygiene",
       "proposal-outline",
     ]);
@@ -58,12 +61,18 @@ describe("sales harness ↔ UI contract", () => {
     }
   });
 
-  it("surfaces every user-facing playbook as a suggestion", () => {
-    // customer-data-handling is deferred to by the others rather than invoked
-    // directly, so it is deliberately not a suggestion.
-    expect(suggestionSkills()).toEqual(
-      shippedSkillNames().filter((n) => n !== "customer-data-handling"),
-    );
+  it("keeps the chat suggestions to the six everyday tasks", () => {
+    // Not every playbook earns a suggestion. customer-data-handling is
+    // deferred to by the others rather than invoked directly, and the three
+    // added later (qualification, battlecards, objections) are asked for by
+    // name mid-deal rather than reached for from an empty chat. Six is what
+    // fits the empty state without becoming a menu.
+    expect(suggestionSkills()).toHaveLength(6);
+    const shipped = new Set(shippedSkillNames());
+    for (const skill of suggestionSkills()) {
+      expect(shipped, skill).toContain(skill);
+    }
+    expect(suggestionSkills()).not.toContain("customer-data-handling");
   });
 
   it("keeps the local and remote SOUL defaults on one shared constant", () => {

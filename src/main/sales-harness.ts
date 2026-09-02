@@ -32,7 +32,7 @@ import type { SalesConnector } from "../shared/sales";
  * Bump when the bundled skills change. Seeding compares this against the
  * marker written into the skills directory and rewrites only on mismatch.
  */
-export const SALES_HARNESS_VERSION = 1;
+export const SALES_HARNESS_VERSION = 2;
 
 /** Category directory the skills live under, per the layout skills.ts scans. */
 export const SALES_CATEGORY = "sales";

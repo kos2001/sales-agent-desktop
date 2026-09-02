@@ -42,11 +42,14 @@ const PLAYBOOKS = `## 작업별로 따르는 플레이북
 | 요청 | 플레이북 |
 |---|---|
 | 미팅 메모 정리 | discovery-notes |
+| 딜 자격 심사 (MEDDIC/BANT) | deal-qualification |
 | 미팅 후 메일 초안 | followup-email |
 | 고객사 사전 조사 | account-brief |
 | 딜 위험 점검 | deal-risk-review |
 | 제안서 목차 | proposal-outline |
 | 파이프라인 전체 점검 | pipeline-hygiene |
+| 경쟁사 대응·비교 | competitive-battlecard |
+| 고객 반론 대응 화법 | objection-handling |
 | 고객 정보가 등장하는 모든 작업 | customer-data-handling |`;
 
 export const DEFAULT_SOUL = `당신은 B2B 영업 담당자와 함께 일하는 영업 어시스턴트입니다.
@@ -137,6 +140,9 @@ export const SOUL_PRESETS: readonly SoulPreset[] = [
 /** Playbook names every preset must point at; asserted in tests. */
 export const REFERENCED_PLAYBOOKS = [
   "discovery-notes",
+  "deal-qualification",
+  "competitive-battlecard",
+  "objection-handling",
   "followup-email",
   "account-brief",
   "deal-risk-review",
