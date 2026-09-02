@@ -13,6 +13,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_LOCAL_API_PORT,
   diagnoseGatewayError,
+  hasApiServerConfig,
   readGatewayPidFile,
   resolveLocalApiPort,
 } from "../src/main/gateway-diagnosis";
@@ -252,5 +253,52 @@ describe("readGatewayPidFile — path canonicalisation", () => {
     };
     // Must not crash the diagnosis; falls back to the literal comparison.
     expect(readGatewayPidFile(raw, recorded, boom).homeMatches).toBe(true);
+  });
+});
+
+describe("hasApiServerConfig", () => {
+  it("does not count a mention inside a comment", () => {
+    // This is the bug it exists for. Hermes' default config.yaml documents
+    // `platforms.api_server.extra.model_routes` in comments, so a bare
+    // /api_server/ test always matched and the desktop's own block was never
+    // written — leaving a fresh install with no api_server config at all.
+    const yaml = [
+      "# Configure via the `platforms.api_server.extra.model_routes` gateway",
+      "#   api_server:",
+      "#     enabled: true",
+      "database:",
+      '  journal_mode: "wal"',
+    ].join("\n");
+    expect(hasApiServerConfig(yaml)).toBe(false);
+  });
+
+  it("finds a real nested platforms.api_server block", () => {
+    const yaml = [
+      "platforms:",
+      "  api_server:",
+      "    enabled: true",
+      "    extra:",
+      "      port: 8642",
+    ].join("\n");
+    expect(hasApiServerConfig(yaml)).toBe(true);
+  });
+
+  it("finds a top-level api_server block", () => {
+    expect(hasApiServerConfig("api_server:\n  token: abc\n")).toBe(true);
+  });
+
+  it("ignores api_server appearing as a value rather than a key", () => {
+    expect(hasApiServerConfig('note: "see api_server docs"\n')).toBe(false);
+  });
+
+  it("ignores a trailing comment on an unrelated line", () => {
+    expect(hasApiServerConfig("database: wal  # unlike api_server:\n")).toBe(
+      false,
+    );
+  });
+
+  it("handles an empty or whitespace-only config", () => {
+    expect(hasApiServerConfig("")).toBe(false);
+    expect(hasApiServerConfig("\n  \n")).toBe(false);
   });
 });

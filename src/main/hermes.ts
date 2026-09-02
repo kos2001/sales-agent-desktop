@@ -28,6 +28,7 @@ import {
 import {
   DEFAULT_LOCAL_API_PORT,
   diagnoseGatewayError,
+  hasApiServerConfig,
   readGatewayPidFile,
   resolveLocalApiPort,
 } from "./gateway-diagnosis";
@@ -229,15 +230,17 @@ function ensureApiServerConfig(): void {
     const configPath = join(HERMES_HOME, "config.yaml");
     if (!existsSync(configPath)) return;
     const content = readFileSync(configPath, "utf-8");
-    // If api_server is already configured, skip
-    if (/api_server/i.test(content)) return;
+    // Comment-aware: the default config.yaml *documents* api_server in
+    // comments, so a plain substring test matched every time and this block
+    // was never written.
+    if (hasApiServerConfig(content)) return;
     const addition = `
 # Desktop app API server (auto-configured)
 platforms:
   api_server:
     enabled: true
     extra:
-      port: 8642
+      port: ${DEFAULT_LOCAL_API_PORT}
       host: "127.0.0.1"
 `;
     appendFileSync(configPath, addition, "utf-8");
