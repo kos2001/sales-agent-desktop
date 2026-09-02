@@ -188,3 +188,27 @@ export function readGatewayPidFile(
   // Bare-integer form carries no home; nothing to contradict, so trust it.
   return { pid: Number(trimmed), homeMatches: true };
 }
+
+/**
+ * Whether config.yaml actually configures an api_server.
+ *
+ * `ensureApiServerConfig()` used to decide this with `/api_server/i` over the
+ * whole file. Hermes' default config.yaml documents
+ * `platforms.api_server.extra.model_routes` in comments, so that test always
+ * matched: the function returned early every single time and never wrote the
+ * block it exists to write. A fresh install ended up with no api_server
+ * configuration at all, and the gateway fell back to its own defaults.
+ *
+ * Comment-aware and key-aware: `api_server` has to appear as a mapping key on
+ * a line that is not commented out. Deliberately not a YAML parse — this runs
+ * on every gateway start and must not throw on a config the user is midway
+ * through editing.
+ */
+export function hasApiServerConfig(yaml: string): boolean {
+  for (const line of yaml.split("\n")) {
+    // Drop a trailing comment, then require the key to be what remains.
+    const code = line.split("#")[0];
+    if (/^\s*api_server\s*:/.test(code)) return true;
+  }
+  return false;
+}
