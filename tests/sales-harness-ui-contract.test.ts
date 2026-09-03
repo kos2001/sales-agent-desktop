@@ -39,16 +39,45 @@ describe("sales harness ↔ UI contract", () => {
   it("ships the sales playbooks the app is built around", () => {
     expect(shippedSkillNames()).toEqual([
       "account-brief",
+      "business-courtesy",
       "competitive-battlecard",
+      "competitive-conversion",
+      "contract-operations",
       "contract-review",
       "customer-data-handling",
+      "customer-profile",
+      "customer-visit-hosting",
       "deal-qualification",
       "deal-risk-review",
+      "demand-generation",
+      "design-win-management",
       "discovery-notes",
+      "eol-management",
       "followup-email",
+      "global-account-management",
+      "inventory-management",
+      "logistics-support",
+      "market-sizing",
+      "market-trend-brief",
+      "markup-policy",
       "objection-handling",
+      "overseas-operations",
+      "pcn-management",
       "pipeline-hygiene",
+      "pricing-strategy",
+      "promotion-program",
       "proposal-outline",
+      "qbr-review",
+      "rma-handling",
+      "sales-code-registration",
+      "sales-execution-tracking",
+      "sales-meeting-report",
+      "sales-plan",
+      "sales-target-setting",
+      "sample-management",
+      "strategic-volume-ops",
+      "supply-allocation",
+      "territory-prospecting",
     ]);
   });
 
@@ -62,13 +91,16 @@ describe("sales harness ↔ UI contract", () => {
     }
   });
 
-  it("keeps the chat suggestions to the six everyday tasks", () => {
-    // Not every playbook earns a suggestion. customer-data-handling is
-    // deferred to by the others rather than invoked directly, and the three
-    // added later (qualification, battlecards, objections) are asked for by
-    // name mid-deal rather than reached for from an empty chat. Six is what
-    // fits the empty state without becoming a menu.
-    expect(suggestionSkills()).toHaveLength(6);
+  it("keeps the chat suggestions to the everyday tasks", () => {
+    // The library is much larger than the empty state. Most playbooks are
+    // opened deliberately: customer-data-handling is deferred to by the
+    // others rather than invoked directly; qualification, battlecards and
+    // objections are asked for by name mid-deal; and the planning work
+    // (targets, sizing, pricing, territory, strategic volume, inventory) is
+    // periodic — a rep sits down to it rather than reaching for it from an
+    // idle chat. The suggestions are only the eight a rep may plausibly
+    // start a day with, so this stays a shortcut rather than a menu.
+    expect(suggestionSkills()).toHaveLength(8);
     const shipped = new Set(shippedSkillNames());
     for (const skill of suggestionSkills()) {
       expect(shipped, skill).toContain(skill);

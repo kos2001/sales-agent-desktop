@@ -26,6 +26,14 @@ interface ChatProps {
   profile?: string;
   onSessionStarted?: () => void;
   onNewChat?: () => void;
+  /**
+   * A request picked on the Tasks screen. Fills the input; never sends —
+   * the user edits the specifics and presses send themselves. The nonce
+   * makes picking the same task twice fill the box again.
+   */
+  pendingPrompt?: { text: string; nonce: number } | null;
+  /** Opens the Tasks launcher from the empty state. */
+  onBrowseTasks?: () => void;
 }
 
 function Chat({
@@ -35,6 +43,8 @@ function Chat({
   profile,
   onSessionStarted,
   onNewChat,
+  pendingPrompt,
+  onBrowseTasks,
 }: ChatProps): React.JSX.Element {
   const { t } = useI18n();
   const [isLoading, setIsLoading] = useState(false);
@@ -260,6 +270,13 @@ function Chat({
     chatInputRef.current?.setText(text);
   }, []);
 
+  // A task picked on the launcher lands in the input. Keyed on the nonce so
+  // re-picking the same task refills the box.
+  useEffect(() => {
+    if (!pendingPrompt) return;
+    chatInputRef.current?.setText(pendingPrompt.text);
+  }, [pendingPrompt]);
+
   const handlePickFolder = useCallback(async () => {
     const path = await window.hermesAPI.selectFolder();
     if (path) setContextFolder(path);
@@ -344,7 +361,10 @@ function Chat({
 
       <div className="chat-messages" ref={containerRef}>
         {messages.length === 0 ? (
-          <ChatEmptyState onSelectSuggestion={handleSuggestion} />
+          <ChatEmptyState
+            onSelectSuggestion={handleSuggestion}
+            onBrowseTasks={onBrowseTasks}
+          />
         ) : (
           <MessageList
             messages={messages}

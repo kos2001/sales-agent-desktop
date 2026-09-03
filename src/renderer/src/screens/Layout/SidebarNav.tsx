@@ -12,11 +12,13 @@ import {
   Reminder,
   Wrench,
   ChevronDown,
+  Tasks,
 } from "../../assets/icons";
 import type { LucideIcon } from "lucide-react";
 import { useI18n } from "../../components/useI18n";
 
 export type View =
+  | "tasks"
   | "chat"
   | "sessions"
   | "agents"
@@ -54,6 +56,9 @@ export const NAV_GROUPS: NavGroup[] = [
     id: "sales",
     titleKey: "navigation.groupSales",
     items: [
+      // Tasks first, and it is the landing view: the app can do forty things
+      // and chat is a blank box that shows none of them.
+      { view: "tasks", icon: Tasks, labelKey: "tasks.title" },
       { view: "chat", icon: ChatBubble, labelKey: "navigation.chat" },
       { view: "sessions", icon: Accounts, labelKey: "navigation.sessions" },
       { view: "skills", icon: Playbook, labelKey: "navigation.skills" },

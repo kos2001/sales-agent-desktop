@@ -16,7 +16,7 @@ export default {
   connectRemoteSubtitle: "실행 중인 에이전트 API 서버의 URL을 입력하세요.",
   remoteServerUrl: "서버 URL",
   remoteApiKey: "API 키 (선택)",
-  remoteApiKeyPlaceholder: "Bearer token (API_SERVER_KEY)",
+  remoteApiKeyPlaceholder: "Bearer 토큰 (API_SERVER_KEY)",
   testingConnection: "연결 확인 중",
   connect: "연결",
   remoteHint:

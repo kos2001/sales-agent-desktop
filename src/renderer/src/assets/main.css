@@ -7323,3 +7323,209 @@ body {
 .office-help {
   margin: 0 16px 12px;
 }
+
+/* ── Tasks launcher ───────────────────────────────────────────
+   The landing screen: forty named jobs grouped the way the sales
+   team describes its own work. Cards are buttons — the whole card
+   is the hit target, because the audience is not used to hunting
+   for a small link inside a tile. */
+
+.tasks-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px 40px;
+}
+
+.tasks-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.tasks-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tasks-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.tasks-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-bright);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.tasks-search:focus-within {
+  border-color: var(--border-focus);
+}
+
+.tasks-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+}
+
+.tasks-group {
+  margin-bottom: 28px;
+}
+
+.tasks-group-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tasks-group-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.tasks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.task-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 14px;
+  text-align: left;
+  border: 1px solid var(--border-bright);
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.task-card:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent-text);
+}
+
+.task-card:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.task-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.task-card-summary {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.task-card-prep {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  margin-top: 3px;
+  padding-top: 7px;
+  border-top: 1px solid var(--border);
+}
+
+.task-card-prep-label {
+  font-weight: 600;
+  color: var(--accent-text);
+}
+
+.tasks-empty {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 24px 0;
+}
+
+/* Link out of the chat empty state into the full launcher. */
+.chat-empty-browse {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: var(--accent-text);
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.chat-empty-browse:hover {
+  background: var(--bg-hover);
+}
+
+/* ── Accounts: group-by toggle ────────────────────────────
+   Sessions group by work area by default; date is one click away. */
+
+.sessions-groupmode {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.sessions-groupmode-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-right: 2px;
+}
+
+.sessions-groupmode-btn {
+  padding: 3px 10px;
+  border: 1px solid var(--border-bright);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.sessions-groupmode-btn:hover {
+  background: var(--bg-hover);
+}
+
+.sessions-groupmode-btn.active {
+  background: var(--accent-subtle);
+  border-color: var(--accent-text);
+  color: var(--accent-text);
+}
+
+/* Count next to a work-area heading — categories vary a lot in size, so the
+   number tells you where the work actually is. */
+.sessions-group-count {
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 500;
+}

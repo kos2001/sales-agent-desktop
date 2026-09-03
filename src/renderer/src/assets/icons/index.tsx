@@ -48,3 +48,5 @@ export { Loader2 as Spinner } from "lucide-react";
 export { Building2 as Accounts } from "lucide-react";
 export { BookOpen as Playbook } from "lucide-react";
 export { BellRing as Reminder } from "lucide-react";
+// "Tasks" is the launcher — a grid of named jobs, so a grid reads right.
+export { LayoutGrid as Tasks } from "lucide-react";

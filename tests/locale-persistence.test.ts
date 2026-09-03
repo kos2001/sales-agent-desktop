@@ -26,10 +26,10 @@ describe("app locale persistence", () => {
   it("reloads the saved locale after the main process restarts", async () => {
     const firstRun = await loadLocaleModule();
 
-    expect(firstRun.setAppLocale("es")).toBe("es");
+    expect(firstRun.setAppLocale("en")).toBe("en");
 
     const secondRun = await loadLocaleModule();
 
-    expect(secondRun.getAppLocale()).toBe("es");
+    expect(secondRun.getAppLocale()).toBe("en");
   });
 });
