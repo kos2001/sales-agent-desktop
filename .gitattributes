@@ -1,2 +1,10 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# The playbooks are copied byte-for-byte into HERMES_HOME and parsed as text
+# (skills.ts reads the frontmatter out of the first 4000 chars). Under plain
+# `text=auto` a Windows checkout produced CRLF, so the packaged resource
+# differed by build platform and `sales-harness.test.ts` failed only on
+# Windows. Pin them to LF so every platform ships the same bytes.
+resources/sales-skills/**/SKILL.md text eol=lf
+
