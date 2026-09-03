@@ -1468,6 +1468,29 @@ export function buildGatewayStartCommand(): string {
 }
 
 /**
+ * Command to restart the remote gateway.
+ *
+ * `start` is not enough after an update: `systemctl start` on an already
+ * active unit is a no-op, and so is `hermes gateway start` against a running
+ * gateway. The process survives holding the pre-update Python modules in
+ * `sys.modules`, and then fails with an ImportError naming a symbol that is
+ * plainly present in the updated file on disk. A restart is what actually
+ * reloads the engine.
+ */
+export function buildGatewayRestartCommand(): string {
+  return (
+    `if ${SYSTEMD_HERMES_UNIT_TEST}; then ` +
+    `sudo -n systemctl restart hermes.service 2>/dev/null || ` +
+    `systemctl restart hermes.service 2>/dev/null || true; ` +
+    `else ` +
+    `hermes gateway restart 2>/dev/null || ` +
+    `(hermes gateway stop 2>/dev/null; ` +
+    `(nohup hermes gateway start > $HOME/.hermes/gateway.log 2>&1 &)); ` +
+    `fi`
+  );
+}
+
+/**
  * Command to stop the remote gateway (issue #285). Routed through systemd
  * when a `hermes.service` unit exists, so the unit is left cleanly inactive
  * rather than the desktop killing a process systemd would just restart;
@@ -1520,6 +1543,15 @@ export async function sshGatewayStatus(config: SshConfig): Promise<boolean> {
 export async function sshStartGateway(config: SshConfig): Promise<void> {
   try {
     await sshExec(config, buildGatewayStartCommand());
+  } catch {
+    // best effort
+  }
+}
+
+/** Restart the remote gateway — see buildGatewayRestartCommand. */
+export async function sshRestartGateway(config: SshConfig): Promise<void> {
+  try {
+    await sshExec(config, buildGatewayRestartCommand());
   } catch {
     // best effort
   }
