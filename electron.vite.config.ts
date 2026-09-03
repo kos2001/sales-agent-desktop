@@ -23,6 +23,25 @@ export default defineConfig({
     },
   },
   renderer: {
+    // Pinned, and strict about it.
+    //
+    // With no server config, Vite takes 5173 and — when something else
+    // already has it — silently walks to the next free port. On a machine
+    // running several of these projects that means the dev server lands
+    // somewhere different every launch. The failure that surfaced it: the
+    // renderer came up on 5174 because a sibling project held 5173, the dev
+    // server was later killed while its Electron child survived as an orphan
+    // (reparented to launchd), and the window sat there pointing at a dead
+    // 5174 showing nothing. A blank app with no error is the worst possible
+    // symptom for a silent port change.
+    //
+    // A project-specific port with strictPort makes the address predictable
+    // and turns a conflict into a startup error naming the port instead of a
+    // blank window ten minutes later.
+    server: {
+      port: 5273,
+      strictPort: true,
+    },
     resolve: {
       alias: {
         "@renderer": resolve("src/renderer/src"),
