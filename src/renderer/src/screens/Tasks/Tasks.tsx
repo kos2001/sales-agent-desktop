@@ -1,10 +1,23 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Search, X } from "../../assets/icons";
+import {
+  Search,
+  X,
+  GroupMarket,
+  GroupStrategy,
+  GroupSupply,
+  GroupDemand,
+  GroupCustomer,
+  GroupOverseas,
+  GroupQuality,
+  GroupDeal,
+} from "../../assets/icons";
+import type { LucideIcon } from "lucide-react";
 import { useI18n } from "../../components/useI18n";
 import {
   PLAYBOOK_GROUPS,
   PLAYBOOK_TASKS,
   searchTasks,
+  type PlaybookGroup,
   type PlaybookTask,
 } from "../../../../shared/sales-playbooks";
 
@@ -21,6 +34,22 @@ import {
  * specifics (which customer, which quarter) and presses send themselves —
  * a click here should never start work the user has not read.
  */
+
+/**
+ * Icons live here rather than in the catalogue because `sales-playbooks.ts` is
+ * shared content with no React dependency, and a group's colour is a CSS
+ * concern keyed off `data-group`.
+ */
+const GROUP_ICONS: Record<PlaybookGroup, LucideIcon> = {
+  market: GroupMarket,
+  strategy: GroupStrategy,
+  supply: GroupSupply,
+  demand: GroupDemand,
+  customer: GroupCustomer,
+  overseas: GroupOverseas,
+  quality: GroupQuality,
+  deal: GroupDeal,
+};
 
 const RECENT_KEY = "tasks-recent";
 const RECENT_MAX = 4;
@@ -66,14 +95,23 @@ function Tasks({ onStartTask }: TasksProps): React.JSX.Element {
 
   const start = useCallback(
     (task: PlaybookTask) => {
-      setRecent((prev) => [
-        task.id,
-        ...prev.filter((id) => id !== task.id),
-      ].slice(0, RECENT_MAX));
+      setRecent((prev) =>
+        [task.id, ...prev.filter((id) => id !== task.id)].slice(0, RECENT_MAX),
+      );
       onStartTask(task.prompt);
     },
     [onStartTask],
   );
+
+  // Counts drive both the overview rail and the group headings, so they
+  // cannot disagree about how much is in a section.
+  const groupCounts = useMemo(() => {
+    const counts = new Map<PlaybookGroup, number>();
+    for (const task of PLAYBOOK_TASKS) {
+      counts.set(task.group, (counts.get(task.group) ?? 0) + 1);
+    }
+    return counts;
+  }, []);
 
   const recentTasks = recent
     .map((id) => PLAYBOOK_TASKS.find((task) => task.id === id))
@@ -84,6 +122,7 @@ function Tasks({ onStartTask }: TasksProps): React.JSX.Element {
       type="button"
       key={task.id}
       className="task-card"
+      data-group={task.group}
       onClick={() => start(task)}
     >
       <span className="task-card-title">{task.title}</span>
@@ -91,6 +130,12 @@ function Tasks({ onStartTask }: TasksProps): React.JSX.Element {
       <span className="task-card-prep">
         <span className="task-card-prep-label">{t("tasks.prep")}</span>
         {task.prep}
+      </span>
+      {/* Which playbook this runs. Traceable on purpose: it teaches the
+          vocabulary the chat box responds to, and it is the name to search
+          for on the Playbooks screen. */}
+      <span className="task-card-playbook" title={t("tasks.playbookHint")}>
+        {task.id}
       </span>
     </button>
   );
@@ -130,6 +175,29 @@ function Tasks({ onStartTask }: TasksProps): React.JSX.Element {
         )}
       </div>
 
+      {!searching && (
+        <nav className="tasks-overview" aria-label={t("tasks.overviewLabel")}>
+          {PLAYBOOK_GROUPS.map((group) => {
+            const Icon = GROUP_ICONS[group.id];
+            return (
+              <a
+                key={group.id}
+                className="tasks-overview-chip"
+                data-group={group.id}
+                href={`#task-group-${group.id}`}
+                title={group.hint}
+              >
+                <Icon size={14} aria-hidden />
+                <span className="tasks-overview-chip-title">{group.title}</span>
+                <span className="tasks-overview-chip-count">
+                  {groupCounts.get(group.id) ?? 0}
+                </span>
+              </a>
+            );
+          })}
+        </nav>
+      )}
+
       {searching ? (
         matches.length === 0 ? (
           <p className="tasks-empty">{t("tasks.noResults")}</p>
@@ -154,9 +222,21 @@ function Tasks({ onStartTask }: TasksProps): React.JSX.Element {
               (task) => task.group === group.id && matchIds.has(task.id),
             );
             if (tasks.length === 0) return null;
+            const Icon = GROUP_ICONS[group.id];
             return (
-              <section className="tasks-group" key={group.id}>
-                <h3 className="tasks-group-title">{group.title}</h3>
+              <section
+                className="tasks-group"
+                key={group.id}
+                id={`task-group-${group.id}`}
+                data-group={group.id}
+              >
+                <h3 className="tasks-group-title">
+                  <span className="tasks-group-icon" aria-hidden>
+                    <Icon size={15} />
+                  </span>
+                  {group.title}
+                  <span className="tasks-group-count">{tasks.length}</span>
+                </h3>
                 <p className="tasks-group-hint">{group.hint}</p>
                 <div className="tasks-grid">{tasks.map(card)}</div>
               </section>
