@@ -19,7 +19,7 @@ export default {
   },
   emptyTitle: "What are we working on?",
   emptyHint:
-    "Turn meeting notes into a record, draft the follow-up, review a deal, or check the pipeline",
+    "Turn meeting notes into a record, draft the follow-up, review a deal, read the market, or work out this month's allocation",
   suggestionDiscovery: "Write up discovery notes",
   suggestionDiscoveryPrompt:
     "Turn my rough notes from the meeting that just finished into structured discovery notes.",
@@ -38,6 +38,12 @@ export default {
   suggestionPipeline: "Check pipeline hygiene",
   suggestionPipelinePrompt:
     "Go through my pipeline and find deals that have stalled or are missing a next action.",
+  suggestionMarketTrend: "Summarize market trends",
+  suggestionMarketTrendPrompt:
+    "Summarize this month's market trends for my product, separating what was observed from what it implies for our selling.",
+  suggestionSupply: "Work out the allocation",
+  suggestionSupplyPrompt:
+    "Compare available volume against what customers have asked for this month, and draft an allocation with the reasoning for each line.",
   approve: "Approve",
   deny: "Deny",
   thinking: "Thinking",

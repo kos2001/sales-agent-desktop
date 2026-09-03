@@ -18,7 +18,7 @@ function LocaleSwitcherProbe(): React.JSX.Element {
 
   return (
     <>
-      <button onClick={() => setLocale("es")}>Switch to Spanish</button>
+      <button onClick={() => setLocale("en")}>Switch to English</button>
       <div>{t("welcome.title")}</div>
     </>
   );
@@ -57,7 +57,7 @@ describe("I18nProvider", () => {
     }
   });
 
-  it("renders English translations by default", async () => {
+  it("renders Korean translations by default", async () => {
     await act(async () => {
       render(
         <I18nProvider>
@@ -66,10 +66,11 @@ describe("I18nProvider", () => {
       );
     });
 
-    expect(await screen.findByText("Welcome to Sales Agent")).toBeInTheDocument();
+    // Korean is DEFAULT_ACTIVE_LOCALE — the team is Korean.
+    expect(await screen.findByText("Sales Agent 시작하기")).toBeInTheDocument();
   });
 
-  it("renders Spanish translations after switching locale", async () => {
+  it("renders English translations after switching locale", async () => {
     render(
       <I18nProvider>
         <LocaleSwitcherProbe />
@@ -78,12 +79,14 @@ describe("I18nProvider", () => {
 
     await act(async () => {
       fireEvent.click(
-        screen.getByRole("button", { name: "Switch to Spanish" }),
+        screen.getByRole("button", { name: "Switch to English" }),
       );
     });
 
-    expect(setLocale).toHaveBeenLastCalledWith("es");
-    expect(await screen.findByText("Bienvenido a Hermes")).toBeInTheDocument();
+    expect(setLocale).toHaveBeenLastCalledWith("en");
+    expect(
+      await screen.findByText("Welcome to Sales Agent"),
+    ).toBeInTheDocument();
   });
 
   it("does not overwrite the main-process locale with the startup fallback", async () => {
@@ -105,10 +108,12 @@ describe("I18nProvider", () => {
     expect(setLocale).not.toHaveBeenCalled();
 
     await act(async () => {
-      resolveMainLocale("es");
+      resolveMainLocale("en");
     });
 
-    expect(setLocale).toHaveBeenLastCalledWith("es");
-    expect(await screen.findByText("Bienvenido a Hermes")).toBeInTheDocument();
+    expect(setLocale).toHaveBeenLastCalledWith("en");
+    expect(
+      await screen.findByText("Welcome to Sales Agent"),
+    ).toBeInTheDocument();
   });
 });

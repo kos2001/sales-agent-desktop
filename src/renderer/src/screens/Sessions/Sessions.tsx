@@ -2,6 +2,11 @@ import { useEffect, useState, useRef, useCallback, memo } from "react";
 import { Plus, Search, X, ChatBubble, Trash } from "../../assets/icons";
 import { useI18n } from "../../components/useI18n";
 import { sessionLabel, disambiguateLabels } from "../../lib/sessionLabel";
+import {
+  PLAYBOOK_GROUPS,
+  type PlaybookGroup,
+} from "../../../../shared/sales-playbooks";
+import { classifySession } from "../../../../shared/session-category";
 
 interface CachedSession {
   id: string;
@@ -88,6 +93,39 @@ function groupSessions(
     .filter((label) => groups.has(label))
     .map((label) => ({ label, sessions: groups.get(label)! }));
 }
+
+/**
+ * Grouping by work area rather than by date. Sessions the classifier cannot
+ * place with confidence land in a trailing "기타" bucket instead of being
+ * guessed into a group — a conversation filed under the wrong heading is one
+ * the user will never look for.
+ */
+const UNCATEGORIZED = "uncategorized" as const;
+type CategoryKey = PlaybookGroup | typeof UNCATEGORIZED;
+
+function groupSessionsByCategory(
+  sessions: CachedSession[],
+): Array<{ key: CategoryKey; sessions: CachedSession[] }> {
+  const groups = new Map<CategoryKey, CachedSession[]>();
+  for (const s of sessions) {
+    const key: CategoryKey = classifySession(s) ?? UNCATEGORIZED;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(s);
+  }
+  // Catalogue order, so the headings read in the same order as the Tasks
+  // screen; "기타" always last.
+  const order: CategoryKey[] = [
+    ...PLAYBOOK_GROUPS.map((g) => g.id),
+    UNCATEGORIZED,
+  ];
+  return order
+    .filter((key) => groups.has(key))
+    .map((key) => ({ key, sessions: groups.get(key)! }));
+}
+
+const GROUP_TITLE_BY_ID = new Map(PLAYBOOK_GROUPS.map((g) => [g.id, g.title]));
+
+export const GROUP_MODE_KEY = "sessions-group-mode";
 
 function highlightSnippet(snippet: string): React.JSX.Element {
   const parts = snippet.split(/(<<.*?>>)/g);
@@ -238,6 +276,25 @@ function Sessions({
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  // Grouped by work area by default — that is what a rep looks for ("어디에
+  // EOL 얘기했더라"). Date grouping stays one click away for "what did I do
+  // yesterday". Persisted so the choice survives a relaunch.
+  const [groupMode, setGroupMode] = useState<"category" | "date">(() => {
+    try {
+      return localStorage.getItem(GROUP_MODE_KEY) === "date"
+        ? "date"
+        : "category";
+    } catch {
+      return "category";
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(GROUP_MODE_KEY, groupMode);
+    } catch {
+      // Private window / quota — in-session state still works.
+    }
+  }, [groupMode]);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   // Dedupe model-summary requests (id+count) across re-renders this mount.
@@ -394,6 +451,7 @@ function Sessions({
 
   const isShowingSearch = searchQuery.trim().length > 0;
   const grouped = groupSessions(sessions);
+  const byCategory = groupSessionsByCategory(sessions);
 
   // Disambiguate labels across the whole list: distinct sessions that resolve
   // to the same label (e.g. two "양자역학 핵심 개념 소개") get a date suffix so
@@ -452,6 +510,34 @@ function Sessions({
             </button>
           )}
         </div>
+        {!isShowingSearch && sessions.length > 0 && (
+          <div
+            className="sessions-groupmode"
+            role="group"
+            aria-label={t("sessions.groupBy")}
+          >
+            <span className="sessions-groupmode-label">
+              {t("sessions.groupBy")}
+            </span>
+            {(["category", "date"] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                className={`sessions-groupmode-btn ${
+                  groupMode === mode ? "active" : ""
+                }`}
+                aria-pressed={groupMode === mode}
+                onClick={() => setGroupMode(mode)}
+              >
+                {t(
+                  mode === "category"
+                    ? "sessions.groupByCategory"
+                    : "sessions.groupByDate",
+                )}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Content */}
@@ -528,7 +614,37 @@ function Sessions({
         </div>
       ) : (
         <div className="sessions-list">
-          {grouped.map((group) => (
+          {groupMode === "category"
+            ? byCategory.map((group) => (
+                <div key={group.key} className="sessions-group">
+                  <div className="sessions-group-label">
+                    {GROUP_TITLE_BY_ID.get(group.key as PlaybookGroup) ??
+                      t("sessions.uncategorized")}
+                    <span className="sessions-group-count">
+                      {group.sessions.length}
+                    </span>
+                  </div>
+                  {group.sessions.map((s) => (
+                    <SessionCard
+                      key={s.id}
+                      session={s}
+                      label={
+                        labelById.get(s.id) ??
+                        sessionLabel(s, "New conversation")
+                      }
+                      isActive={currentSessionId === s.id}
+                      // Category groups mix dates, so always show the date.
+                      showFullDate
+                      confirming={confirmDelete === s.id}
+                      onClick={() => onResumeSession(s.id)}
+                      onRequestDelete={() => setConfirmDelete(s.id)}
+                      onConfirmDelete={() => void handleDelete(s.id)}
+                      onCancelDelete={() => setConfirmDelete(null)}
+                    />
+                  ))}
+                </div>
+              ))
+            : grouped.map((group) => (
             <div key={group.label} className="sessions-group">
               <div className="sessions-group-label">
                 {t(`sessions.${group.label}`)}

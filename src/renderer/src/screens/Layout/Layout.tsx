@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import Chat, { ChatMessage } from "../Chat/Chat";
+import Tasks from "../Tasks/Tasks";
 import Sessions from "../Sessions/Sessions";
 import Agents from "../Agents/Agents";
 import Settings from "../Settings/Settings";
@@ -30,14 +31,21 @@ function Layout({
   onDismissVerifyWarning,
 }: LayoutProps = {}): React.JSX.Element {
   const { t } = useI18n();
-  const [view, setView] = useState<View>("chat");
+  // Tasks, not chat: an empty chat box shows none of what the app can do.
+  const [view, setView] = useState<View>("tasks");
+  // A task the user picked, waiting to be dropped into the chat box. The
+  // nonce makes re-picking the same task fire the effect again.
+  const [pendingPrompt, setPendingPrompt] = useState<{
+    text: string;
+    nonce: number;
+  } | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [activeProfile, setActiveProfile] = useState("default");
   // Tabs lazy-mount on first visit, then stay mounted (display:none toggle).
   // Keeps IPC refetch / DOM rebuild off the tab-switch hot path.
   const [visitedViews, setVisitedViews] = useState<Set<View>>(
-    () => new Set<View>(["chat"]),
+    () => new Set<View>(["tasks", "chat"]),
   );
   // Remote-only mode — SSH tunnel has full access; only pure HTTP remote mode restricts screens
   const [remoteMode, setRemoteMode] = useState(false);
@@ -70,6 +78,19 @@ function Layout({
     setVisitedViews((prev) => (prev.has(v) ? prev : new Set(prev).add(v)));
     setView(v);
   }, []);
+
+  /**
+   * Picking a task fills the chat box and switches to it — it does not send.
+   * The user still reads the request and fills in the specifics (which
+   * customer, which quarter) before pressing send.
+   */
+  const handleStartTask = useCallback(
+    (prompt: string) => {
+      setPendingPrompt({ text: prompt, nonce: Date.now() });
+      goTo("chat");
+    },
+    [goTo],
+  );
 
   // Re-check remote mode on tab switch (picks up Settings changes)
   useEffect(() => {
@@ -299,6 +320,10 @@ function Layout({
             onDismiss={onDismissVerifyWarning}
           />
         )}
+        <div style={paneStyle("tasks")}>
+          <Tasks onStartTask={handleStartTask} />
+        </div>
+
         <div style={paneStyle("chat")}>
           <Chat
             messages={messages}
@@ -306,6 +331,8 @@ function Layout({
             sessionId={currentSessionId}
             profile={activeProfile}
             onNewChat={handleNewChat}
+            pendingPrompt={pendingPrompt}
+            onBrowseTasks={() => goTo("tasks")}
           />
         </div>
 

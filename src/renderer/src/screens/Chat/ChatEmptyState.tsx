@@ -6,6 +6,9 @@ import {
   TriangleAlert,
   FileText,
   ListChecks,
+  TrendingUp,
+  Boxes,
+  LayoutGrid,
 } from "lucide-react";
 import icon from "../../assets/icon.png";
 import { useI18n } from "../../components/useI18n";
@@ -60,16 +63,34 @@ const SUGGESTIONS: Suggestion[] = [
     textKey: "chat.suggestionPipelinePrompt",
     Icon: ListChecks,
   },
+  {
+    i18nKey: "chat.suggestionMarketTrend",
+    skill: "market-trend-brief",
+    textKey: "chat.suggestionMarketTrendPrompt",
+    Icon: TrendingUp,
+  },
+  {
+    i18nKey: "chat.suggestionSupply",
+    skill: "supply-allocation",
+    textKey: "chat.suggestionSupplyPrompt",
+    Icon: Boxes,
+  },
 ];
 
 export const SALES_SUGGESTIONS = SUGGESTIONS;
 
 interface ChatEmptyStateProps {
   onSelectSuggestion: (text: string) => void;
+  /**
+   * Opens the Tasks launcher. These six shortcuts are a fraction of what
+   * ships, so the empty state has to say where the rest are.
+   */
+  onBrowseTasks?: () => void;
 }
 
 export const ChatEmptyState = memo(function ChatEmptyState({
   onSelectSuggestion,
+  onBrowseTasks,
 }: ChatEmptyStateProps): React.JSX.Element {
   const { t } = useI18n();
 
@@ -92,6 +113,16 @@ export const ChatEmptyState = memo(function ChatEmptyState({
           </button>
         ))}
       </div>
+      {onBrowseTasks && (
+        <button
+          type="button"
+          className="chat-empty-browse"
+          onClick={onBrowseTasks}
+        >
+          <LayoutGrid size={14} aria-hidden />
+          {t("tasks.seeAllTasks")}
+        </button>
+      )}
     </div>
   );
 });

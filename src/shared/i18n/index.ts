@@ -20,6 +20,7 @@ import officeEn from "./locales/en/office";
 import errorsEn from "./locales/en/errors";
 import schedulesEn from "./locales/en/schedules";
 import skillsEn from "./locales/en/skills";
+import tasksEn from "./locales/en/tasks";
 import gatewayEn from "./locales/en/gateway";
 import agentsEn from "./locales/en/agents";
 import soulEn from "./locales/en/soul";
@@ -141,6 +142,7 @@ import officeKo from "./locales/ko/office";
 import errorsKo from "./locales/ko/errors";
 import schedulesKo from "./locales/ko/schedules";
 import skillsKo from "./locales/ko/skills";
+import tasksKo from "./locales/ko/tasks";
 import gatewayKo from "./locales/ko/gateway";
 import agentsKo from "./locales/ko/agents";
 import soulKo from "./locales/ko/soul";
@@ -206,6 +208,7 @@ export const resources = {
       errors: errorsEn,
       schedules: schedulesEn,
       skills: skillsEn,
+      tasks: tasksEn,
       gateway: gatewayEn,
       agents: agentsEn,
       soul: soulEn,
@@ -399,6 +402,7 @@ export const resources = {
       errors: errorsKo,
       schedules: schedulesKo,
       skills: skillsKo,
+      tasks: tasksKo,
       gateway: gatewayKo,
       agents: agentsKo,
       soul: soulKo,

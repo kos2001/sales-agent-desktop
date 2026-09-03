@@ -71,22 +71,22 @@ function renderScreen(
 describe("VersionCheck", () => {
   it("shows both components and an engine update affordance", () => {
     renderScreen();
-    expect(screen.getByText(/Hermes Agent engine/i)).toBeInTheDocument();
+    expect(screen.getByText(/Hermes Agent 엔진/)).toBeInTheDocument();
     expect(screen.getByText(/Hermes Desktop/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /update engine/i }),
+      screen.getByRole("button", { name: /엔진 업데이트/ }),
     ).toBeInTheDocument();
   });
 
   it("fires onSkip when the user chooses to continue", () => {
     const { onSkip } = renderScreen();
-    fireEvent.click(screen.getByRole("button", { name: /skip and continue/i }));
+    fireEvent.click(screen.getByRole("button", { name: /건너뛰고 계속/ }));
     expect(onSkip).toHaveBeenCalledOnce();
   });
 
   it("runs the engine update and calls onUpdated on success", async () => {
     const { onUpdated } = renderScreen();
-    fireEvent.click(screen.getByRole("button", { name: /update engine/i }));
+    fireEvent.click(screen.getByRole("button", { name: /엔진 업데이트/ }));
     await waitFor(() => expect(api().runHermesUpdate).toHaveBeenCalledOnce());
     expect(onUpdated).toHaveBeenCalledOnce();
   });
@@ -97,27 +97,27 @@ describe("VersionCheck", () => {
       error: "boom",
     });
     const { onUpdated } = renderScreen();
-    fireEvent.click(screen.getByRole("button", { name: /update engine/i }));
+    fireEvent.click(screen.getByRole("button", { name: /엔진 업데이트/ }));
     expect(await screen.findByText("boom")).toBeInTheDocument();
     expect(onUpdated).not.toHaveBeenCalled();
   });
 
   it("downloads the desktop update then switches to restart", async () => {
     renderScreen({ status: desktopUpdateStatus });
-    const button = screen.getByRole("button", { name: /download & install/i });
+    const button = screen.getByRole("button", { name: /다운로드 및 설치/ });
     fireEvent.click(button);
     await waitFor(() => expect(api().downloadUpdate).toHaveBeenCalledOnce());
 
     // While downloading, the button shows the downloading label and is disabled.
     const downloading = await screen.findByRole("button", {
-      name: /downloading/i,
+      name: /다운로드 중/,
     });
     expect(downloading).toBeDisabled();
 
     // The main-process "update downloaded" event flips to the restart state.
     downloadedCb?.();
     expect(
-      await screen.findByRole("button", { name: /restart to update/i }),
+      await screen.findByRole("button", { name: /재시작하여 업데이트/ }),
     ).toBeInTheDocument();
   });
 });

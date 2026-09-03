@@ -2,8 +2,14 @@ import { describe, expect, it } from "vitest";
 import { t } from "./index";
 
 describe("shared i18n", () => {
-  it("returns English text by default", () => {
-    expect(t("welcome.title")).toBe("Welcome to Sales Agent");
+  it("returns Korean text by default", () => {
+    // DEFAULT_ACTIVE_LOCALE is ko — the team, the playbooks and the task
+    // catalogue are all Korean.
+    expect(t("welcome.title")).toBe("Sales Agent 시작하기");
+  });
+
+  it("still returns English when asked for it", () => {
+    expect(t("welcome.title", "en")).toBe("Welcome to Sales Agent");
   });
 
   it("falls back to the key when an English key is missing", () => {

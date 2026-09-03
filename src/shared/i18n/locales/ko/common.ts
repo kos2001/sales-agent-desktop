@@ -29,7 +29,7 @@ export default {
   settings: "설정",
   provider: "제공자",
   model: "모델",
-  baseUrl: "Base URL",
+  baseUrl: "기본 URL",
   port: "포트",
   home: "홈",
   released: "출시됨",

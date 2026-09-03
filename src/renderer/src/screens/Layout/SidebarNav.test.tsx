@@ -35,7 +35,10 @@ describe("SidebarNav", () => {
       "workspace",
       "admin",
     ]);
+    // Tasks leads: it is the landing view, and the one screen that shows a
+    // new user what the app can actually do.
     expect(NAV_GROUPS[0].items.map((i) => i.view)).toEqual([
+      "tasks",
       "chat",
       "sessions",
       "skills",
@@ -55,7 +58,7 @@ describe("SidebarNav", () => {
     // NOT the local API gateway that serves chat — that stays.
     expect(wired).not.toContain("gateway");
     expect(new Set(wired).size).toBe(wired.length);
-    expect(wired).toHaveLength(11);
+    expect(wired).toHaveLength(12);
   });
 
   it("hides the admin screens until the group is opened", () => {
