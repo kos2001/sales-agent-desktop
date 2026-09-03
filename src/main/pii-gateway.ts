@@ -26,6 +26,7 @@ import {
 import { tmpdir } from "os";
 import { join } from "path";
 import { HERMES_PYTHON, getEnhancedPath } from "./installer";
+import { HIDDEN_SUBPROCESS_OPTIONS } from "./process-options";
 
 // The toolkit scripts are BUNDLED into the desktop app under
 // resources/pii-gateway/scripts (electron-builder ships resources/**), NOT
@@ -80,6 +81,9 @@ function runScript(script: string, args: string[]): Promise<boolean> {
         encoding: "utf-8",
         timeout: 20_000,
         maxBuffer: 10 * 1024 * 1024,
+        // Runs once per protected message, so a missing hidden-window option
+        // flashes a console window on Windows on every single send.
+        ...HIDDEN_SUBPROCESS_OPTIONS,
       },
       (err) => resolve(!err),
     );

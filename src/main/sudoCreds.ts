@@ -2,6 +2,7 @@ import { BrowserWindow, ipcMain, type IpcMainEvent } from "electron";
 import { spawn } from "child_process";
 import { join } from "path";
 import { ASKPASS_SUBMIT_CHANNEL } from "../shared/askpass";
+import { HIDDEN_SUBPROCESS_OPTIONS } from "./process-options";
 
 export interface SudoPrecacheResult {
   ok: boolean;
@@ -59,7 +60,10 @@ export async function precacheSudoCredentials(
 
 function trySudoNonInteractive(): Promise<boolean> {
   return new Promise((resolve) => {
-    const p = spawn("sudo", ["-n", "-v"], { stdio: "ignore" });
+    const p = spawn("sudo", ["-n", "-v"], {
+      stdio: "ignore",
+      ...HIDDEN_SUBPROCESS_OPTIONS,
+    });
     p.on("close", (code) => resolve(code === 0));
     p.on("error", () => resolve(false));
   });
@@ -71,6 +75,7 @@ function validateSudoPassword(password: string): Promise<boolean> {
     // running a command. `-p ""` suppresses the "Password:" prompt to stderr.
     const p = spawn("sudo", ["-S", "-p", "", "-v"], {
       stdio: ["pipe", "ignore", "ignore"],
+      ...HIDDEN_SUBPROCESS_OPTIONS,
     });
     p.on("close", (code) => resolve(code === 0));
     p.on("error", () => resolve(false));
@@ -87,7 +92,10 @@ function startKeepalive(): () => void {
   let stopped = false;
   const interval = setInterval(() => {
     if (stopped) return;
-    const p = spawn("sudo", ["-n", "-v"], { stdio: "ignore" });
+    const p = spawn("sudo", ["-n", "-v"], {
+      stdio: "ignore",
+      ...HIDDEN_SUBPROCESS_OPTIONS,
+    });
     p.on("error", () => {
       /* non-fatal: keepalive failure won't crash the install */
     });
@@ -96,7 +104,10 @@ function startKeepalive(): () => void {
     if (stopped) return;
     stopped = true;
     clearInterval(interval);
-    const p = spawn("sudo", ["-k"], { stdio: "ignore" });
+    const p = spawn("sudo", ["-k"], {
+      stdio: "ignore",
+      ...HIDDEN_SUBPROCESS_OPTIONS,
+    });
     p.on("error", () => {
       /* non-fatal */
     });
