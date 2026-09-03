@@ -224,6 +224,7 @@ import {
   sshDeleteProfile,
   sshGatewayStatus,
   sshStartGateway,
+  sshRestartGateway,
   sshStopGateway,
   sshReadRemoteApiKey,
   sshGetHermesVersion,
@@ -483,7 +484,9 @@ function setupIPC(): void {
           log: "Running hermes update over SSH...\n",
         });
         await sshRunUpdate(conn.ssh);
-        await sshStartGateway(conn.ssh);
+        // restart, not start: `systemctl start` on a running unit is a no-op,
+        // so the remote gateway would keep serving pre-update modules.
+        await sshRestartGateway(conn.ssh);
         await startSshTunnel(conn.ssh);
         const key = await sshReadRemoteApiKey(conn.ssh);
         setSshRemoteApiKey(key);
@@ -494,6 +497,30 @@ function setupIPC(): void {
         event.sender.send("install-progress", progress);
       });
       clearVersionCache();
+      // The update replaced the engine's Python sources on disk, but a
+      // gateway that was already running still holds the OLD modules in
+      // sys.modules. The next module it imports for the first time is read
+      // fresh from disk and resolves its imports against those stale
+      // modules, so a symbol the update added comes back missing:
+      //   ImportError: cannot import name 'tool_result_id_variants'
+      //                from 'agent.message_sanitization'
+      // — naming a function that is plainly there in the file. We ran the
+      // update, so we own restarting what it invalidated.
+      //
+      // Not fatal: the update itself succeeded, and reporting failure here
+      // would tell the user otherwise. A gateway that does not come back is
+      // logged and picked up by the next send-message, which starts one.
+      try {
+        const restarted = await restartHermesGateway();
+        if (!restarted) {
+          console.error(
+            "[update] gateway restart failed — it may still be running " +
+              "pre-update modules; restart it manually if imports fail",
+          );
+        }
+      } catch (err) {
+        console.error("[update] gateway restart threw:", err);
+      }
       return { success: true };
     } catch (err) {
       return { success: false, error: (err as Error).message };
@@ -1804,7 +1831,10 @@ function setupUpdater(): void {
   });
 
   checkForUpdatesImpl = async () => {
-    if (_desktopUpdateCache && Date.now() - _desktopUpdateCache.at < DESKTOP_UPDATE_TTL_MS) {
+    if (
+      _desktopUpdateCache &&
+      Date.now() - _desktopUpdateCache.at < DESKTOP_UPDATE_TTL_MS
+    ) {
       return _desktopUpdateCache.value;
     }
     try {
