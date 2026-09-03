@@ -8,5 +8,8 @@ export default {
   resultsCount: "{{count}}건",
   recent: "최근 사용",
   prep: "미리 준비: ",
+  overviewLabel: "업무 영역 바로가기",
+  playbookHint:
+    "이 업무가 사용하는 플레이북 이름입니다. 플레이북 화면에서 이 이름으로 찾을 수 있습니다.",
   seeAllTasks: "전체 업무 보기",
 } as const;

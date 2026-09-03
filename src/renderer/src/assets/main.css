@@ -7457,6 +7457,162 @@ body {
   color: var(--accent-text);
 }
 
+/* ── Tasks launcher: group identity ───────────────────────────────────
+   The eight groups rendered as eight identical headings, so forty cards
+   read as one flat wall. Each group now carries an icon and a hue, and
+   both the overview rail and the section heading key off `data-group`
+   so a group looks the same in both places. */
+
+.tasks-group[data-group],
+.task-card[data-group],
+.tasks-overview-chip[data-group] {
+  --group-hue: 174; /* petrol, matching the app mark; overridden below */
+}
+.tasks-group[data-group="market"],
+.task-card[data-group="market"],
+.tasks-overview-chip[data-group="market"] {
+  --group-hue: 174;
+}
+.tasks-group[data-group="strategy"],
+.task-card[data-group="strategy"],
+.tasks-overview-chip[data-group="strategy"] {
+  --group-hue: 262;
+}
+.tasks-group[data-group="supply"],
+.task-card[data-group="supply"],
+.tasks-overview-chip[data-group="supply"] {
+  --group-hue: 32;
+}
+.tasks-group[data-group="demand"],
+.task-card[data-group="demand"],
+.tasks-overview-chip[data-group="demand"] {
+  --group-hue: 142;
+}
+.tasks-group[data-group="customer"],
+.task-card[data-group="customer"],
+.tasks-overview-chip[data-group="customer"] {
+  --group-hue: 208;
+}
+.tasks-group[data-group="overseas"],
+.task-card[data-group="overseas"],
+.tasks-overview-chip[data-group="overseas"] {
+  --group-hue: 190;
+}
+.tasks-group[data-group="quality"],
+.task-card[data-group="quality"],
+.tasks-overview-chip[data-group="quality"] {
+  --group-hue: 6;
+}
+.tasks-group[data-group="deal"],
+.task-card[data-group="deal"],
+.tasks-overview-chip[data-group="deal"] {
+  --group-hue: 45;
+}
+
+/* Overview rail — what the app can do, at a glance, and a jump target for
+   each section.
+   Wraps rather than scrolling: horizontal scroll cut the eighth group off the
+   right edge with only a scrollbar hinting it existed, which defeats the point
+   of an overview. Eight chips wrap to two rows at worst. */
+.tasks-overview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 2px 0 12px;
+  margin-bottom: 4px;
+}
+
+.tasks-overview-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border: 1px solid var(--border-bright);
+  border-radius: 999px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-decoration: none;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.tasks-overview-chip svg {
+  color: hsl(var(--group-hue) 62% 52%);
+}
+
+.tasks-overview-chip:hover {
+  background: var(--bg-hover);
+  border-color: hsl(var(--group-hue) 62% 52%);
+  color: var(--text-primary);
+}
+
+.tasks-overview-chip:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.tasks-overview-chip-count {
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* Section heading: icon in a tinted well, then the name, then the count. */
+.tasks-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tasks-group-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: hsl(var(--group-hue) 62% 52% / 0.14);
+  color: hsl(var(--group-hue) 62% 52%);
+}
+
+.tasks-group-count {
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-bright);
+  color: var(--text-muted);
+}
+
+/* `prep` answers the first question a new user has — what do I need ready? —
+   but it rendered as the faintest line on the card. Inset rule gives it a
+   shape the eye can find without shouting over the title. */
+.task-card-prep {
+  padding-left: 8px;
+  border-left: 2px solid hsl(var(--group-hue, 174) 62% 52% / 0.45);
+}
+
+/* Which playbook runs. Small and monospace: it is a reference, not a label,
+   and it is the string to search for on the Playbooks screen. */
+.task-card-playbook {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-bright);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
 .tasks-empty {
   font-size: 13px;
   color: var(--text-muted);

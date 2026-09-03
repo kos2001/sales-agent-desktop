@@ -50,3 +50,15 @@ export { BookOpen as Playbook } from "lucide-react";
 export { BellRing as Reminder } from "lucide-react";
 // "Tasks" is the launcher — a grid of named jobs, so a grid reads right.
 export { LayoutGrid as Tasks } from "lucide-react";
+
+// Task-group marks. The eight groups in the Tasks launcher rendered as eight
+// identical text headings, which made forty cards read as one flat wall. An
+// icon per group gives each section something to aim at while scrolling.
+export { TrendingUp as GroupMarket } from "lucide-react";
+export { Target as GroupStrategy } from "lucide-react";
+export { Boxes as GroupSupply } from "lucide-react";
+export { Sprout as GroupDemand } from "lucide-react";
+export { Handshake as GroupCustomer } from "lucide-react";
+export { Globe2 as GroupOverseas } from "lucide-react";
+export { ShieldAlert as GroupQuality } from "lucide-react";
+export { Briefcase as GroupDeal } from "lucide-react";

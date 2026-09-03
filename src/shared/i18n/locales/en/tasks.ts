@@ -8,5 +8,8 @@ export default {
   resultsCount: "{{count}} matching",
   recent: "Recent",
   prep: "Have ready: ",
+  overviewLabel: "Jump to a work area",
+  playbookHint:
+    "The playbook this task runs. Search this name on the Playbooks screen.",
   seeAllTasks: "See all tasks",
 } as const;
